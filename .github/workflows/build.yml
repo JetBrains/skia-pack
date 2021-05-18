@@ -1,7 +1,7 @@
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - ".github/workflows/*"
       - "script/*"
@@ -14,7 +14,7 @@ on:
         default: 'false'
 
 env:
-  version: m91-b99622c05a-3
+  version: m91-b99622c05a
 
 jobs:
   macos:
