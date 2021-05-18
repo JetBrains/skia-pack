@@ -7,11 +7,11 @@ def main():
   version = common.version()
   build_type = common.build_type()
   machine = common.machine()
-  system = common.system()
+  target = common.target()
   classifier = common.classifier()
   os.chdir(os.pardir)
 
-  zip = 'Skia-' + version + '-' + system + '-' + build_type + '-' + machine + classifier + '.zip'
+  zip = 'Skia-' + version + '-' + target + '-' + build_type + '-' + machine + classifier + '.zip'
   if not os.path.exists(zip):
     print('Can\'t find "' + zip + '"')
     return 1

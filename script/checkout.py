@@ -48,7 +48,7 @@ def main():
     subprocess.check_call(["git", "apply", str(x)])
 
   # git deps
-  if 'windows' == common.system():
+  if 'windows' == common.host():
     env = os.environ.copy()
     env['PYTHONHTTPSVERIFY']='0'
     subprocess.check_call(["python", "tools/git-sync-deps"], env=env)

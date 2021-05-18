@@ -7,20 +7,26 @@ def create_parser(version_required=False):
   parser.add_argument('--build-type', default='Release')
   parser.add_argument('--version', required=version_required)
   parser.add_argument('--classifier')
-  parser.add_argument('--system')
+  parser.add_argument('--host')
   parser.add_argument('--machine')
   parser.add_argument('--ndk')
+  parser.add_argument('--target')
   return parser
 
-def system():
+def host():
   parser = create_parser()
   (args, _) = parser.parse_known_args()
-  return args.system if args.system else {'Darwin': 'macos', 'Linux': 'linux', 'Windows': 'windows'}[platform.system()]
+  return args.host if args.host else {'Darwin': 'macos', 'Linux': 'linux', 'Windows': 'windows'}[platform.system()]
 
 def machine():
   parser = create_parser()
   (args, _) = parser.parse_known_args()
   return args.machine if args.machine else {'AMD64': 'x64', 'x86_64': 'x64', 'arm64': 'arm64'}[platform.machine()]
+
+def target():
+  parser = create_parser()
+  (args, _) = parser.parse_known_args()
+  return args.target if args.machine else host()
 
 def version():
   parser = create_parser()

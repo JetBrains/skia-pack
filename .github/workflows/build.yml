@@ -21,23 +21,24 @@ jobs:
     runs-on: macos-10.15
     strategy:
       matrix:
+        target: ["macos", "ios"]
         machine: ["x64", "arm64"]
         build_type: [Release]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
-      - run: python3 script/check_release.py --version ${{ env.version }} --build-type ${{ matrix.build_type }} --machine ${{ matrix.machine }}
+      - run: python3 script/check_release.py --version ${{ env.version }} --target ${{ matrix.target }} --build-type ${{ matrix.build_type }} --machine ${{ matrix.machine }}
         if: ${{ github.event.inputs.skip_release != 'true' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: python3 script/checkout.py --version ${{ env.version }}
-      - run: python3 script/build.py --build-type ${{ matrix.build_type }} --machine ${{ matrix.machine }}
-      - run: python3 script/archive.py --version ${{ env.version }} --build-type ${{ matrix.build_type }} --machine ${{ matrix.machine }}
+      - run: python3 script/build.py --build-type ${{ matrix.build_type }} --target ${{ matrix.target }} --machine ${{ matrix.machine }}
+      - run: python3 script/archive.py --version ${{ env.version }} --build-type  ${{ matrix.build_type }} --target ${{ matrix.target }} --machine ${{ matrix.machine }}
       - uses: actions/upload-artifact@v2
         with:
-          name: Skia-${{ env.version }}-macos-${{ matrix.build_type }}-${{ matrix.machine }}.zip
+          name: Skia-${{ env.version }}-${{ matrix.target }}-${{ matrix.build_type }}-${{ matrix.machine }}.zip
           path: '*.zip'
-      - run: python3 script/release.py --version ${{ env.version }} --build-type ${{ matrix.build_type }} --machine ${{ matrix.machine }}
+      - run: python3 script/release.py --version ${{ env.version }} --build-type ${{ matrix.build_type }} --target ${{ matrix.build_type }} --machine ${{ matrix.machine }}
         if: ${{ github.event.inputs.skip_release != 'true' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

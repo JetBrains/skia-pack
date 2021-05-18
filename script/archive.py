@@ -16,13 +16,14 @@ def main():
   build_type = common.build_type()
   version = common.version()
   machine = common.machine()
-  system = common.system()
+  target = common.target()
   classifier = common.classifier()
+  out_bin = 'out/' + build_type + '-' + target + '-' + machine
 
   globs = [
-    'out/' + build_type + '-' + machine + '/*.a',
-    'out/' + build_type + '-' + machine + '/*.lib',
-    'out/' + build_type + '-' + machine + '/icudtl.dat',
+    out_bin + '/*.a',
+    out_bin + '/*.lib',
+    out_bin + '/icudtl.dat',
     'include/**/*',
     'modules/particles/include/*.h',
     'modules/skottie/include/*.h',
@@ -68,10 +69,10 @@ def main():
     "third_party/icu/*.h"
   ]
 
-  target = 'Skia-' + version + '-' + system + '-' + build_type + '-' + machine + classifier + '.zip'
-  print('> Writing', target)
+  dist = 'Skia-' + version + '-' + target + '-' + build_type + '-' + machine + classifier + '.zip'
+  print('> Writing', dist)
   
-  with zipfile.ZipFile(os.path.join(os.pardir, target), 'w', compression=zipfile.ZIP_DEFLATED) as zip:
+  with zipfile.ZipFile(os.path.join(os.pardir, dist), 'w', compression=zipfile.ZIP_DEFLATED) as zip:
     dirs = set()
     for glob in globs:
       for path in pathlib.Path().glob(glob):

@@ -7,7 +7,9 @@ def main():
 
   build_type = common.build_type()
   machine = common.machine()
-  system = common.system()
+  host = common.host()
+  target = common.target()
+  print(target)
   ndk = common.ndk()  
 
   if build_type == 'Debug':
@@ -35,39 +37,42 @@ def main():
     'skia_enable_skottie=true'
   ]
 
-  if 'macos' == system:
+  if 'macos' == host:
     args += [
       # 'skia_enable_gpu=true',
       # 'skia_use_gl=true',
       'skia_use_metal=true',
       'extra_cflags_cc=["-frtti"]'
     ]
-    if 'arm64' == machine:
-      args += ['extra_cflags=["-stdlib=libc++"]']
+    if 'ios' == target:
+      args += ['target_os="ios"']
     else:
-      args += ['extra_cflags=["-stdlib=libc++", "-mmacosx-version-min=10.13"]']
-  elif 'linux' == system:
+      if 'arm64' == machine:
+        args += ['extra_cflags=["-stdlib=libc++"]']
+      else:
+        args += ['extra_cflags=["-stdlib=libc++", "-mmacosx-version-min=10.13"]']
+  elif 'linux' == host:
     args += [
       # 'skia_enable_gpu=true',
       # 'skia_use_gl=true',
       'extra_cflags_cc=["-frtti", "-D_GLIBCXX_USE_CXX11_ABI=0"]',
       'cxx="g++-9"',
     ]
-  elif 'windows' == system:
+  elif 'windows' == host:
     args += [
       # 'skia_use_angle=true',
       'skia_use_direct3d=true',
       'extra_cflags=["-DSK_FONT_HOST_USE_SYSTEM_SETTINGS"]',
     ]
-  elif 'android' == system:
+  elif 'android' == target:
     args += [
       'ndk="'+ ndk + '"'
     ]
 
-  out = os.path.join('out', build_type + '-' + machine)
-  gn = 'gn.exe' if 'windows' == system else 'gn'
+  out = os.path.join('out', build_type + '-' + target + '-' + machine)
+  gn = 'gn.exe' if 'windows' == host else 'gn'
   subprocess.check_call([os.path.join('bin', gn), 'gen', out, '--args=' + ' '.join(args)])
-  ninja = 'ninja.exe' if 'windows' == system else 'ninja'
+  ninja = 'ninja.exe' if 'windows' == host else 'ninja'
   subprocess.check_call([os.path.join('..', 'depot_tools', ninja), '-C', out, 'skia', 'modules'])
 
   return 0

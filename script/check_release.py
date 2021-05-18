@@ -6,14 +6,14 @@ def main():
   headers = common.github_headers()
   version = common.version()
   build_type = common.build_type()
-  system = common.system()
+  target = common.target()
   machine = common.machine()
   classifier = common.classifier()
   
   try:
     resp = urllib.request.urlopen(urllib.request.Request('https://api.github.com/repos/JetBrains/skia-pack/releases/tags/' + version, headers=headers)).read()
     artifacts = [x['name'] for x in json.loads(resp.decode('utf-8'))['assets']]
-    zip = 'Skia-' + version + '-' + system + '-' + build_type + '-' + machine + classifier + '.zip'
+    zip = 'Skia-' + version + '-' + target + '-' + build_type + '-' + machine + classifier + '.zip'
     if zip in artifacts:
       print('> Artifact "' + zip + '" exists, stopping')
       return 1
