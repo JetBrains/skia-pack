@@ -9,7 +9,6 @@ def main():
   machine = common.machine()
   host = common.host()
   target = common.target()
-  print(target)
   ndk = common.ndk()  
 
   if build_type == 'Debug':
