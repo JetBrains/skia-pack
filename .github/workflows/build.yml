@@ -42,7 +42,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  linux:
+  linux-ubuntu18:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
