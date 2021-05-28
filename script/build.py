@@ -36,7 +36,7 @@ def main():
     'skia_enable_skottie=true'
   ]
 
-  if 'macos' == host:
+  if 'macos' == target or 'ios' == target:
     args += [
       # 'skia_enable_gpu=true',
       # 'skia_use_gl=true',
@@ -50,14 +50,14 @@ def main():
         args += ['extra_cflags=["-stdlib=libc++"]']
       else:
         args += ['extra_cflags=["-stdlib=libc++", "-mmacosx-version-min=10.13"]']
-  elif 'linux' == host:
+  elif 'linux' == target:
     args += [
       # 'skia_enable_gpu=true',
       # 'skia_use_gl=true',
       'extra_cflags_cc=["-frtti", "-D_GLIBCXX_USE_CXX11_ABI=0"]',
       'cxx="g++-9"',
     ]
-  elif 'windows' == host:
+  elif 'windows' == target:
     args += [
       # 'skia_use_angle=true',
       'skia_use_direct3d=true',
