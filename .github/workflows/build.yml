@@ -63,7 +63,7 @@ jobs:
         with:
           name: Skia-${{ env.version }}-linux-${{ matrix.build_type }}-x64-ubuntu18.zip
           path: '*.zip'
-      - run: python3 script/release.py --version ${{ env.version }} --build-type ${{ matrix.build_type }}
+      - run: python3 script/release.py --version ${{ env.version }} --build-type ${{ matrix.build_type }} --classifier ubuntu18
         if: ${{ github.event.inputs.skip_release != 'true' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
