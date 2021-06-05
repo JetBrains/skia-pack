@@ -56,14 +56,15 @@ def main():
         args += ['extra_cflags=["-stdlib=libc++", "-mmacosx-version-min=10.13"]']
   elif 'linux' == target:
     if 'arm64' == machine:
+        # TODO: use clang on all targets!
         args += [
-            'extra_cflags=["-frtti", "-flax-vector-conversions=all"]',
+            'extra_cflags_cc=["-fno-exceptions", "-fno-rtti", "-flax-vector-conversions=all"]',
              'cc="clang-11"',
              'cxx="clang++-11"',
         ]
     else:
         args += [
-            'extra_cflags=["-frtti", "-D_GLIBCXX_USE_CXX11_ABI=0"]',
+            'extra_cflags_cc=["-fno-exceptions", "-fno-rtti","-D_GLIBCXX_USE_CXX11_ABI=0"]',
             'cc="gcc-9"',
             'cxx="g++-9"',
         ]
