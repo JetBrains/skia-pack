@@ -14,7 +14,7 @@ on:
         default: 'false'
 
 env:
-  version: m91-71fcb16fc2
+  version: m91-1a01201b77
 
 jobs:
   macos:
