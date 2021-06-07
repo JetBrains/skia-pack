@@ -78,6 +78,34 @@ def main():
     args += [
       'ndk="'+ ndk + '"'
     ]
+  elif 'wasm' == target:
+    # brew install emscripten binaryen llvm nodejs
+    # echo "BINARYEN_ROOT = '/usr/local'" >> ~/.emscripten
+    # echo "LLVM_ROOT = '/opt/homebrew/opt/llvm/bin'" >> ~/.emscripten
+    # echo "NODE_JS = '/opt/homebrew/bin/node'" >> ~/.emscripten
+    args += [
+        'cc="emcc"',
+        'cxx="emcc"',
+        'ar="emar"',
+        'skia_use_dng_sdk=false',
+        'skia_use_libjpeg_turbo_decode=true',
+        'skia_use_libjpeg_turbo_encode=false',
+        'skia_use_libpng_decode=true',
+        'skia_use_libpng_encode=false',
+        'skia_use_libwebp_decode=true',
+        'skia_use_libwebp_encode=false',
+        'skia_use_wuffs=true',
+        'skia_use_lua=false',
+        'skia_use_piex=false',
+        'skia_use_system_libpng=false',
+        'skia_use_system_freetype2=false',
+        'skia_use_system_libjpeg_turbo=false',
+        'skia_use_system_libwebp=false',
+        'skia_enable_tools=false',
+        'skia_enable_fontmgr_custom_directory=false',
+        'skia_enable_fontmgr_custom_embedded=true',
+        'skia_enable_fontmgr_custom_empty=false',
+    ]
 
   if 'linux' == host and 'arm64' == host_machine:
     tools_dir = 'tools'
