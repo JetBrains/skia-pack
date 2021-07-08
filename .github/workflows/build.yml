@@ -23,7 +23,7 @@ jobs:
       matrix:
         target: ["macos", "ios"]
         machine: ["x64", "arm64"]
-        build_type: [Release]
+        build_type: [Release, Debug]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
