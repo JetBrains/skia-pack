@@ -124,15 +124,13 @@ jobs:
               apt-get update -q -y
               apt-get install -q -y bash
             run: |
-              ls /checkout
-              cd /checkout/skia-pack
+              cd /checkout
               /bin/bash script/prepare_linux_arm.sh
               python3 script/check_release.py --version ${build_version}
               python3 script/checkout.py --version ${build_version}
               python3 script/build.py --build-type ${build_type}
               python3 script/archive.py --version ${build_version} --build-type ${build_type}
               echo "Produced artifact at ${PWD}/${artifact_name}"
-      - run: cp "${GITHUB_WORKSPACE}/skia-pack/*.zip" .
       - uses: actions/upload-artifact@v2
         with:
             name: Skia-${{ env.version }}-linux-${{ matrix.build_type }}-arm64.zip
