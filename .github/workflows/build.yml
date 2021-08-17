@@ -124,7 +124,8 @@ jobs:
             install: |
               apt-get update -q -y
               apt-get install -q -y bash
-              /bin/bash /checkout/script/prepare_linux_arm.sh
+              ls /checkout
+              /bin/bash /checkout/skia-pack/script/prepare_linux_arm.sh
             run: |
               cd /checkout/skia-pack
               python3 script/check_release.py --version ${build_version}
