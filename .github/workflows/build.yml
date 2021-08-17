@@ -126,7 +126,10 @@ jobs:
               apt-get install -q -y bash
               /bin/bash /checkout/script/prepare_linux_arm.sh
             run: |
+              ls
               cd /checkout
+              ls
+              ls /checkout
               python3 script/check_release.py --version ${build_version}
               python3 script/checkout.py --version ${build_version}
               python3 script/build.py --build-type ${build_type}
