@@ -101,9 +101,9 @@ jobs:
       - uses: actions/checkout@v2
       - uses: uraimo/run-on-arch-action@v2.0.5
         name: Run commands
-          id: runcmd
-          if: ${{ github.event.inputs.skip_release != 'true' }}
-          with:
+        id: runcmd
+        if: ${{ github.event.inputs.skip_release != 'true' }}
+        with:
             arch: aarch64
             distro: ubuntu18.04
             githubToken: ${{ secrets.GITHUB_TOKEN }}
@@ -117,26 +117,27 @@ jobs:
               build_type: ${{ matrix.build_type }}
               build_version: ${{ env.version }}
               artifact_name: Skia-${{ env.version }}-linux-${{ matrix.build_type }}-arm64.zip
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             # The shell to run commands with in the container
             shell: /bin/bash
             install: |
               apt-get update -q -y
               apt-get install -q -y git
               sudo ./script/prepare_linux.sh
-          run: |
-            python3 script/check_release.py --version ${build_version}
-            python3 script/checkout.py --version ${build_version}
-            python3 script/build.py --build-type ${build_type}
-            python3 script/archive.py --version ${build_version }} --build-type ${build_type}
-            cp ${artifact_name} "/artifacts/${artifact_name}"
-            echo "Produced artifact at /artifacts/${artifact_name}"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            run: |
+              python3 script/check_release.py --version ${build_version}
+              python3 script/checkout.py --version ${build_version}
+              python3 script/build.py --build-type ${build_type}
+              python3 script/archive.py --version ${build_version} --build-type ${build_type}
+              cp ${artifact_name} "/artifacts/${artifact_name}"
+              echo "Produced artifact at /artifacts/${artifact_name}"
       - run: cp "${PWD}/artifacts/*.zip" .
       - uses: actions/upload-artifact@v2
-          with:
+        with:
             name: Skia-${{ env.version }}-linux-${{ matrix.build_type }}-arm64.zip
             path: '*.zip'
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: python3 script/release.py --version ${{ env.version }} --build-type ${{ matrix.build_type }}
         if: ${{ github.event.inputs.skip_release != 'true' }}
         env:
