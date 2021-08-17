@@ -122,8 +122,8 @@ jobs:
             shell: /bin/bash
             install: |
               apt-get update -q -y
-              apt-get install -q -y git
-              sudo ./script/prepare_linux.sh
+              apt-get install -q -y bash
+              /bin/bash ./script/prepare_linux_arm.sh
             run: |
               python3 script/check_release.py --version ${build_version}
               python3 script/checkout.py --version ${build_version}
