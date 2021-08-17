@@ -91,7 +91,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  linux-arm64-18.04:
+  linux-arm64-1804:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
