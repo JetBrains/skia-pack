@@ -109,7 +109,7 @@ jobs:
             githubToken: ${{ secrets.GITHUB_TOKEN }}
             # Create an artifacts directory
             setup: |
-                mkdir -p "${PWD}/artifacts"
+              mkdir -p "${PWD}/artifacts"
             # Mount the artifacts directory as /artifacts in the container
             dockerRunArgs: |
               --volume "${PWD}/artifacts:/artifacts"
@@ -126,10 +126,7 @@ jobs:
               apt-get install -q -y bash
               /bin/bash /checkout/script/prepare_linux_arm.sh
             run: |
-              ls
-              cd /checkout
-              ls
-              ls /checkout
+              cd /checkout/skia-pack
               python3 script/check_release.py --version ${build_version}
               python3 script/checkout.py --version ${build_version}
               python3 script/build.py --build-type ${build_type}
