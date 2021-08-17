@@ -91,7 +91,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  linux-arm64-1804:
+  linux-arm64-2004:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
@@ -105,7 +105,7 @@ jobs:
         if: ${{ github.event.inputs.skip_release != 'true' }}
         with:
             arch: aarch64
-            distro: ubuntu18.04
+            distro: ubuntu20.04
             githubToken: ${{ secrets.GITHUB_TOKEN }}
             # Mount checkout directory as /checkout in the container
             dockerRunArgs: |
