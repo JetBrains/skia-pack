@@ -107,10 +107,7 @@ jobs:
             arch: aarch64
             distro: ubuntu18.04
             githubToken: ${{ secrets.GITHUB_TOKEN }}
-            # Create an artifacts directory
-            setup: |
-              mkdir -p "${PWD}/artifacts"
-            # Mount the artifacts directory as /artifacts in the container
+            # Mount checkout directory as /checkout in the container
             dockerRunArgs: |
               --volume "${GITHUB_WORKSPACE}:/checkout"
             env: |
