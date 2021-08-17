@@ -14,7 +14,7 @@ on:
         default: 'false'
 
 env:
-  version: m92-a77a4620d2
+  version: m93-87e8842e8c
 
 jobs:
   macos:
