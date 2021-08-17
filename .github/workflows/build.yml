@@ -113,7 +113,7 @@ jobs:
             # Mount the artifacts directory as /artifacts in the container
             dockerRunArgs: |
               --volume "${PWD}/artifacts:/artifacts"
-              --volume "$GITHUB_WORKSPACE:/checkout"
+              --volume "${GITHUB_WORKSPACE}:/checkout"
             env: |
               build_type: ${{ matrix.build_type }}
               build_version: ${{ env.version }}
