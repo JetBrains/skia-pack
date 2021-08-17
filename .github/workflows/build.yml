@@ -112,7 +112,6 @@ jobs:
               mkdir -p "${PWD}/artifacts"
             # Mount the artifacts directory as /artifacts in the container
             dockerRunArgs: |
-              --volume "${PWD}/artifacts:/artifacts"
               --volume "${GITHUB_WORKSPACE}:/checkout"
             env: |
               build_type: ${{ matrix.build_type }}
@@ -124,17 +123,16 @@ jobs:
             install: |
               apt-get update -q -y
               apt-get install -q -y bash
-              ls /checkout
-              /bin/bash /checkout/skia-pack/script/prepare_linux_arm.sh
             run: |
+              ls /checkout
               cd /checkout/skia-pack
+              /bin/bash script/prepare_linux_arm.sh
               python3 script/check_release.py --version ${build_version}
               python3 script/checkout.py --version ${build_version}
               python3 script/build.py --build-type ${build_type}
               python3 script/archive.py --version ${build_version} --build-type ${build_type}
-              cp ${artifact_name} "/artifacts/${artifact_name}"
-              echo "Produced artifact at /artifacts/${artifact_name}"
-      - run: cp "${PWD}/artifacts/*.zip" .
+              echo "Produced artifact at ${PWD}/${artifact_name}"
+      - run: cp "${GITHUB_WORKSPACE}/skia-pack/*.zip" .
       - uses: actions/upload-artifact@v2
         with:
             name: Skia-${{ env.version }}-linux-${{ matrix.build_type }}-arm64.zip
