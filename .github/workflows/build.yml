@@ -134,7 +134,7 @@ jobs:
             path: '*.zip'
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: python3 script/release.py --version ${{ env.version }} --build-type ${{ matrix.build_type }}
+      - run: python3 script/release.py --version ${{ env.version }} --build-type ${{ matrix.build_type }} --target linux --machine arm64
         if: ${{ github.event.inputs.skip_release != 'true' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
