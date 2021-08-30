@@ -106,7 +106,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: python3 script/checkout.py --version ${{ env.version }}
-      - run: source ./emsdk/emsdk_env.sh python3 script/build.py --target wasm --machine wasm
+      - run: source ./emsdk/emsdk_env.sh && python3 script/build.py --target wasm --machine wasm
       - run: python3 script/archive.py --version ${{ env.version }} --target wasm --machine wasm
       - uses: actions/upload-artifact@v2
         with:
