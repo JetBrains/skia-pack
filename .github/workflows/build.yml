@@ -100,7 +100,7 @@ jobs:
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
-      - run: sudo ./script/prepare_wasm.sh
+      - run: ./script/prepare_wasm.sh
       - run: python3 script/check_release.py --version ${{ env.version }} --target wasm --build-type ${{ matrix.build_type }} --machine wasm
         if: ${{ github.event.inputs.skip_release != 'true' }}
         env:
