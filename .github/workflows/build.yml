@@ -14,7 +14,7 @@ on:
         default: 'false'
 
 env:
-  version: m93-87e8842e8c
+  version: m94-975fcdd755
 
 jobs:
   macos:
@@ -79,14 +79,40 @@ jobs:
         if: ${{ github.event.inputs.skip_release != 'true' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: PATH=/usr/lib/binutils-2.26/bin:$PATH python3 script/checkout.py --version ${{ env.version }}
+      - run: python3 script/checkout.py --version ${{ env.version }}
       - run: PATH=/usr/lib/binutils-2.26/bin:$PATH python3 script/build.py
-      - run: PATH=/usr/lib/binutils-2.26/bin:$PATH python3 script/archive.py --version ${{ env.version }} --classifier ubuntu14
+      - run: python3 script/archive.py --version ${{ env.version }} --classifier ubuntu14
       - uses: actions/upload-artifact@v2
         with:
           name: Skia-${{ env.version }}-linux-Release-x64-ubuntu14.zip
           path: '*.zip'
       - run: python3 script/release.py --version ${{ env.version }} --classifier ubuntu14
+        if: ${{ github.event.inputs.skip_release != 'true' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  linux-wasm:
+    runs-on: ubuntu-latest
+    container: ubuntu:20.04
+    strategy:
+      matrix:
+        build_type: [ Release ]
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v2
+      - run: sudo ./script/prepare_wasm.sh
+      - run: python3 script/check_release.py --version ${{ env.version }} --target wasm --build-type ${{ matrix.build_type }} --machine wasm
+        if: ${{ github.event.inputs.skip_release != 'true' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: python3 script/checkout.py --version ${{ env.version }}
+      - run: source ./emsdk/emsdk_env.sh python3 script/build.py --target wasm --machine wasm
+      - run: python3 script/archive.py --version ${{ env.version }} --target wasm --machine wasm
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Skia-${{ env.version }}-wasm-Release-wasm.zip
+          path: '*.zip'
+      - run: python3 script/release.py --version ${{ env.version }} --target wasm --machine wasm
         if: ${{ github.event.inputs.skip_release != 'true' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
