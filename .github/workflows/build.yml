@@ -96,7 +96,7 @@ jobs:
     container: ubuntu:20.04
     strategy:
       matrix:
-        build_type: [ Release ]
+        build_type: [ Debug, Release ]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
@@ -106,13 +106,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: python3 script/checkout.py --version ${{ env.version }}
-      - run: bash -c ". ./emsdk/emsdk_env.sh && python3 script/build.py --target wasm --machine wasm"
-      - run: python3 script/archive.py --version ${{ env.version }} --target wasm --machine wasm
+      - run: bash -c ". ./emsdk/emsdk_env.sh && python3 script/build.py --target wasm --machine wasm --build-type ${{ matrix.build_type }}"
+      - run: python3 script/archive.py --version ${{ env.version }} --target wasm --machine wasm --build-type ${{ matrix.build_type }}
       - uses: actions/upload-artifact@v2
         with:
-          name: Skia-${{ env.version }}-wasm-Release-wasm.zip
+          name: Skia-${{ env.version }}-wasm-${{ matrix.build_type }}-wasm.zip
           path: '*.zip'
-      - run: python3 script/release.py --version ${{ env.version }} --target wasm --machine wasm
+      - run: python3 script/release.py --version ${{ env.version }} --target wasm --machine wasm --build-type ${{ matrix.build_type }}
         if: ${{ github.event.inputs.skip_release != 'true' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
