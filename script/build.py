@@ -96,6 +96,7 @@ def main():
         'skia_use_libwebp_encode=false',
         'skia_use_wuffs=true',
         'skia_use_lua=false',
+        'skia_use_webgl=true',
         'skia_use_piex=false',
         'skia_use_system_libpng=false',
         'skia_use_system_freetype2=false',
