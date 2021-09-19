@@ -71,22 +71,26 @@ jobs:
   linux-ubuntu14:
     runs-on: ubuntu-latest
     container: ubuntu:14.04
+    strategy:
+      matrix:
+        build_type: [ Release, Debug ]
+      fail-fast: false
     steps:
       - uses: actions/checkout@v2
       - run: sudo ./script/prepare_linux.sh
       - run: sudo apt-get install binutils-2.26 -y
-      - run: python3 script/check_release.py --version ${{ env.version }} --classifier ubuntu14
+      - run: python3 script/check_release.py --version ${{ env.version }}  --build-type ${{ matrix.build_type }} --classifier ubuntu14
         if: ${{ github.event.inputs.skip_release != 'true' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: python3 script/checkout.py --version ${{ env.version }}
-      - run: PATH=/usr/lib/binutils-2.26/bin:$PATH python3 script/build.py
-      - run: python3 script/archive.py --version ${{ env.version }} --classifier ubuntu14
+      - run: PATH=/usr/lib/binutils-2.26/bin:$PATH python3 script/build.py  --build-type ${{ matrix.build_type }}
+      - run: python3 script/archive.py --version ${{ env.version }} --classifier ubuntu14  --build-type ${{ matrix.build_type }}
       - uses: actions/upload-artifact@v2
         with:
-          name: Skia-${{ env.version }}-linux-Release-x64-ubuntu14.zip
+          name: Skia-${{ env.version }}-linux-${{ matrix.build_type }}-x64-ubuntu14.zip
           path: '*.zip'
-      - run: python3 script/release.py --version ${{ env.version }} --classifier ubuntu14
+      - run: python3 script/release.py --version ${{ env.version }} --classifier ubuntu14 --build-type ${{ matrix.build_type }}
         if: ${{ github.event.inputs.skip_release != 'true' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -149,9 +153,9 @@ jobs:
             run: |
               cd /checkout
               /bin/bash script/prepare_linux_arm.sh
-              python3 script/check_release.py --version ${build_version}
+              python3 script/check_release.py --version ${build_version} --build-type ${build_type}
               python3 script/checkout.py --version ${build_version}
-              python3 script/build.py --build-type ${build_type}
+              python3 script/build.py --build-type ${build_type} --build-type ${build_type}
               python3 script/archive.py --version ${build_version} --build-type ${build_type}
               echo "Produced artifact at ${PWD}/${artifact_name}"
       - uses: actions/upload-artifact@v2
