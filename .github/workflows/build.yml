@@ -173,7 +173,7 @@ jobs:
     runs-on: windows-2019
     strategy:
       matrix:
-        build_type: [Release]
+        build_type: [Debug, Release]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
