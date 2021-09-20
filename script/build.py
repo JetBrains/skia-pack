@@ -10,7 +10,7 @@ def main():
   host = common.host()
   host_machine = common.host_machine()
   target = common.target()
-  ndk = common.ndk()  
+  ndk = common.ndk()
 
   tools_dir = "depot_tools"
   ninja = 'ninja.exe' if 'windows' == host else 'ninja'
@@ -83,6 +83,8 @@ def main():
     # echo "BINARYEN_ROOT = '/usr/local'" >> ~/.emscripten
     # echo "LLVM_ROOT = '/opt/homebrew/opt/llvm/bin'" >> ~/.emscripten
     # echo "NODE_JS = '/opt/homebrew/bin/node'" >> ~/.emscripten
+
+    # see skia/modules/canvaskit/compile.sh for reference:
     args += [
         'cc="emcc"',
         'cxx="emcc"',
@@ -106,6 +108,11 @@ def main():
         'skia_enable_fontmgr_custom_directory=false',
         'skia_enable_fontmgr_custom_embedded=true',
         'skia_enable_fontmgr_custom_empty=false',
+        'skia_use_webgl=true',
+        'skia_gl_standard="webgl"',
+        'skia_use_gl=true',
+        'skia_enable_gpu=true',
+        'extra_cflags=["-DSK_SUPPORT_GPU=1", "-DSK_GL", "-DSK_DISABLE_LEGACY_SHADERCONTEXT"]'
     ]
 
   if 'linux' == host and 'arm64' == host_machine:
