@@ -14,7 +14,7 @@ on:
         default: 'false'
 
 env:
-  version: m94-fd7c5792ca
+  version: m96-fd5bb8d130
 
 jobs:
   macos:
@@ -47,7 +47,7 @@ jobs:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
-        build_type: [Release]
+        build_type: [Debug, Release]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
@@ -125,7 +125,7 @@ jobs:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
-        build_type: [ Release ]
+        build_type: [ Debug, Release ]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
