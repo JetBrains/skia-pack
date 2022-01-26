@@ -139,9 +139,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: python3 script/checkout.py --version ${{ env.version }}
-      - run: python3 script/build.py --target android --build-type ${{ matrix.build_type }} --machine ${{ matrix.machine }} --ndk $ANDROID_NDK_HOME
-        env:
-          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+      - run: python3 script/build.py --target android --build-type ${{ matrix.build_type }} --machine ${{ matrix.machine }} --ndk ${{ steps.setup-ndk.outputs.ndk-path }}
       - run: python3 script/archive.py --version ${{ env.version }} --target android --build-type ${{ matrix.build_type }} --machine ${{ matrix.machine }}
       - uses: actions/upload-artifact@v2
         with:
