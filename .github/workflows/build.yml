@@ -122,14 +122,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   linux-android:
-    runs-on: ubuntu-latest
-    container: ubuntu:20.04
+    runs-on: ubuntu-18.04
     strategy:
       matrix:
         build_type: [ Debug, Release ]
         machine: ["x64", "arm64"]
       fail-fast: false
     steps:
+      - run: sudo apt-get install unzip -y
       - uses: actions/checkout@v2
       - uses: nttld/setup-ndk@v1
         with:
