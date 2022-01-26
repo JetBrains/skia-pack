@@ -121,6 +121,39 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  linux-android:
+    runs-on: ubuntu-latest
+    container: ubuntu:20.04
+    strategy:
+      matrix:
+        build_type: [ Debug, Release ]
+        machine: ["x64", "arm64"]
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v2
+      - uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r21e
+      - run: python3 script/check_release.py --version ${{ env.version }} --target android --build-type ${{ matrix.build_type }} --machine ${{ matrix.machine }}
+        if: ${{ github.event.inputs.skip_release != 'true' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: python3 script/checkout.py --version ${{ env.version }}
+      - shell: bash
+          env:
+            ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+          run:
+            python3 script/build.py --target android --build-type ${{ matrix.build_type }} --machine ${{ matrix.machine }} --ndk $ANDROID_NDK_HOME
+      - run: python3 script/archive.py --version ${{ env.version }} --target android --build-type ${{ matrix.build_type }} --machine ${{ matrix.machine }}
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Skia-${{ env.version }}-android-${{ matrix.build_type }}-${{ matrix.machine }}.zip
+          path: '*.zip'
+      - run: python3 script/release.py --version ${{ env.version }} --target android --build-type ${{ matrix.build_type }} --machine ${{ matrix.machine }}
+        if: ${{ github.event.inputs.skip_release != 'true' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   linux-arm64-2004:
     runs-on: ubuntu-18.04
     strategy:
