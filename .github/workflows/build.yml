@@ -131,15 +131,15 @@ jobs:
     steps:
       - run: sudo apt-get install unzip -y
       - uses: actions/checkout@v2
-      - uses: nttld/setup-ndk@v1
-        with:
-          ndk-version: r21e
       - run: python3 script/check_release.py --version ${{ env.version }} --target android --build-type ${{ matrix.build_type }} --machine ${{ matrix.machine }}
         if: ${{ github.event.inputs.skip_release != 'true' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: python3 script/checkout.py --version ${{ env.version }}
-      - run: python3 script/build.py --target android --build-type ${{ matrix.build_type }} --machine ${{ matrix.machine }} --ndk ${{ steps.setup-ndk.outputs.ndk-path }}
+      - uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r21e
+        run: python3 script/build.py --target android --build-type ${{ matrix.build_type }} --machine ${{ matrix.machine }} --ndk ${{ steps.setup-ndk.outputs.ndk-path }}
       - run: python3 script/archive.py --version ${{ env.version }} --target android --build-type ${{ matrix.build_type }} --machine ${{ matrix.machine }}
       - uses: actions/upload-artifact@v2
         with:
