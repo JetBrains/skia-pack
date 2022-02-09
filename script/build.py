@@ -58,9 +58,10 @@ def main():
     if 'arm64' == machine:
         # TODO: use clang on all targets!
         args += [
+            'skia_gl_standard="gles"',
             'extra_cflags_cc=["-fno-exceptions", "-fno-rtti", "-flax-vector-conversions=all", "-D_GLIBCXX_USE_CXX11_ABI=0"]',
-             'cc="clang"',
-             'cxx="clang++"',
+            'cc="clang"',
+            'cxx="clang++"',
         ]
     else:
         args += [
