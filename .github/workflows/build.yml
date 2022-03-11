@@ -14,7 +14,7 @@ on:
         default: 'false'
 
 env:
-  version: m99-f85ab491eb
+  version: m99-f85ab491eb-2
 
 jobs:
   macos:
