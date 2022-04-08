@@ -126,7 +126,7 @@ jobs:
     strategy:
       matrix:
         build_type: [ Debug, Release ]
-        machine: ["x64", "arm64"]
+        machine: ["x64", "arm", "arm64"]
       fail-fast: false
     steps:
       - run: sudo apt-get install unzip -y
