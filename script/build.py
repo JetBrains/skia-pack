@@ -49,6 +49,8 @@ def main():
     ]
     if 'ios' == target:
       args += ['target_os="ios"']
+    elif: 'tvos' == target:
+      args += ['target_os="tvos"']
     else:
       if 'arm64' == machine:
         args += ['extra_cflags=["-stdlib=libc++"]']
