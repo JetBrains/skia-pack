@@ -49,7 +49,7 @@ def main():
     ]
     if 'ios' == target:
       args += ['target_os="ios"']
-    elif: 'tvos' == target:
+    elif 'tvos' == target:
       args += ['target_os="tvos"']
     else:
       if 'arm64' == machine:
