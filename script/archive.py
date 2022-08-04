@@ -40,6 +40,8 @@ def main():
     'modules/skshaper/include/*.h',
     'modules/skshaper/src/*.h',
     'modules/svg/include/*.h',
+    'modules/skcms/src/*.h',
+    'modules/skcms/*.h',
     'src/core/*.h',
     'src/gpu/gl/*.h',
     'src/utils/*.h',
