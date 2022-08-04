@@ -45,7 +45,7 @@ def main():
   subprocess.check_call(["git", "reset", "--hard"])
   for x in pathlib.Path(os.pardir, 'patches').glob('*.patch'):
     print("> Applying", x)
-    subprocess.check_call(["git", "apply", str(x)])
+    subprocess.check_call(["git", "apply", "--whitespace=fix", str(x)])
 
   # git deps
   if 'windows' == common.host():
