@@ -10,7 +10,7 @@ def main():
 
   # Clone depot_tools
   if not os.path.exists("depot_tools"):
-    subprocess.check_call(["git", "clone", "https://chromium.googlesource.com/chromium/tools/depot_tools.git", "depot_tools"])
+    subprocess.check_call(["git", "clone", "--config", "core.autocrlf=input", "https://chromium.googlesource.com/chromium/tools/depot_tools.git", "depot_tools"])
 
   # Clone Skia
   match = re.match('(m\\d+)(?:-([0-9a-f]+)(?:-([1-9][0-9]*))?)?', args.version)
@@ -34,7 +34,7 @@ def main():
       subprocess.check_call(["git", "checkout", branch])
   else:
     print("> Cloning", branch)
-    subprocess.check_call(["git", "clone", "https://skia.googlesource.com/skia", "--quiet", "--branch", branch, "skia"])
+    subprocess.check_call(["git", "clone", "--config", "core.autocrlf=input", "https://skia.googlesource.com/skia", "--quiet", "--branch", branch, "skia"])
     os.chdir("skia")
 
   # Checkout commit
@@ -45,7 +45,7 @@ def main():
   subprocess.check_call(["git", "reset", "--hard"])
   for x in pathlib.Path(os.pardir, 'patches').glob('*.patch'):
     print("> Applying", x)
-    subprocess.check_call(["git", "apply", "--whitespace=fix", str(x)])
+    subprocess.check_call(["git", "apply", str(x)])
 
   # git deps
   if 'windows' == common.host():
