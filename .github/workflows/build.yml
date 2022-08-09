@@ -206,6 +206,7 @@ jobs:
         build_type: [Debug, Release]
       fail-fast: false
     steps:
+      - run: git config --global core.autocrlf input
       - uses: actions/checkout@v2
       - shell: bash
         run: python3 script/check_release.py --version ${{ env.version }} --build-type ${{ matrix.build_type }}
