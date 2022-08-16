@@ -9,17 +9,17 @@ def main():
   target = common.target()
   machine = common.machine()
   classifier = common.classifier()
-  
+
   try:
     resp = urllib.request.urlopen(urllib.request.Request('https://api.github.com/repos/JetBrains/skia-pack/releases/tags/' + version, headers=headers)).read()
     artifacts = [x['name'] for x in json.loads(resp.decode('utf-8'))['assets']]
     zip = 'Skia-' + version + '-' + target + '-' + build_type + '-' + machine + classifier + '.zip'
     if zip in artifacts:
       print('> Artifact "' + zip + '" exists, stopping')
-      return 1
-    return 0
+      return 0
+    return 1
   except urllib.error.URLError as e:
-    return 0
+    return 1
 
 if __name__ == '__main__':
   sys.exit(main())
