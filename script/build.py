@@ -118,7 +118,7 @@ def main():
         'skia_use_gl=true',
         'skia_enable_gpu=true',
         'skia_enable_svg=true', # other targets have this set in skia.gni
-        'skia_use_expat=true'   # other targets have this set in skia.gni
+        'skia_use_expat=true',   # other targets have this set in skia.gni
         'extra_cflags=["-DSK_SUPPORT_GPU=1", "-DSK_GL", "-DSK_DISABLE_LEGACY_SHADERCONTEXT"]'
     ]
 
