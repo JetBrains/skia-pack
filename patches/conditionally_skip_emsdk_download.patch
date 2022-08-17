@@ -1,0 +1,25 @@
+Index: tools/git-sync-deps
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/tools/git-sync-deps b/tools/git-sync-deps
+--- a/tools/git-sync-deps	(revision f204b137b97b44b7397de173fc54181c37ac6501)
++++ b/tools/git-sync-deps	(date 1660727258558)
+@@ -263,9 +263,13 @@
+   subprocess.check_call(
+       [sys.executable,
+        os.path.join(os.path.dirname(deps_file_path), 'bin', 'fetch-gn')])
+-  subprocess.check_call(
+-      [sys.executable,
+-       os.path.join(os.path.dirname(deps_file_path), 'bin', 'activate-emsdk')])
++
++  skipEmsdkDownload = os.environ.get('SKIP_EMSDK_DOWNLOAD') == '1'
++  print("skipEmsdkDownload = " + str(skipEmsdkDownload))
++  if not skipEmsdkDownload:
++      subprocess.check_call(
++          [sys.executable,
++           os.path.join(os.path.dirname(deps_file_path), 'bin', 'activate-emsdk')])
+   return 0
+
+

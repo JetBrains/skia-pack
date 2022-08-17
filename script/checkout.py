@@ -4,7 +4,7 @@ import argparse, common, os, pathlib, platform, re, subprocess, sys
 
 def main():
   os.chdir(os.path.join(os.path.dirname(__file__), os.pardir))
-  
+
   parser = common.create_parser(True)
   args = parser.parse_args()
 
@@ -47,13 +47,17 @@ def main():
     print("> Applying", x)
     subprocess.check_call(["git", "apply", str(x)])
 
+  env = os.environ.copy()
+  if args.skip_emsdk_download:
+    print("setting SKIP_EMSDK_DOWNLOAD=1")
+    env['SKIP_EMSDK_DOWNLOAD']='1'
+
   # git deps
   if 'windows' == common.host():
-    env = os.environ.copy()
     env['PYTHONHTTPSVERIFY']='0'
-    subprocess.check_call(["python", "tools/git-sync-deps"], env=env)
+    subprocess.check_call(["python3", "tools/git-sync-deps"], env=env)
   else:
-    subprocess.check_call(["python", "tools/git-sync-deps"])
+    subprocess.check_call(["python3", "tools/git-sync-deps"], env=env)
 
   return 0
 

@@ -2,6 +2,7 @@ on:
   push:
     branches:
       - main
+      - 'test/**'
     paths:
       - ".github/workflows/*"
       - "script/*"
@@ -184,7 +185,7 @@ jobs:
               cd /checkout
               /bin/bash script/prepare_linux_arm.sh
               python3 script/check_release.py --version ${build_version} --build-type ${build_type}
-              python3 script/checkout.py --version ${build_version}
+              python3 script/checkout.py --version ${build_version} --skip-emsdk-download true
               python3 script/build.py --build-type ${build_type} --build-type ${build_type}
               python3 script/archive.py --version ${build_version} --build-type ${build_type}
               echo "Produced artifact at ${PWD}/${artifact_name}"
