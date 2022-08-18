@@ -4,7 +4,7 @@ import argparse, common, os, pathlib, platform, re, subprocess, sys
 
 def main():
   os.chdir(os.path.join(os.path.dirname(__file__), os.pardir))
-
+  
   parser = common.create_parser(True)
   args = parser.parse_args()
 
@@ -48,7 +48,6 @@ def main():
     subprocess.check_call(["git", "apply", str(x)])
 
   # git deps
-  print("> Running tools/git-sync-deps")
   if 'windows' == common.host():
     env = os.environ.copy()
     env['PYTHONHTTPSVERIFY']='0'
