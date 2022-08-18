@@ -91,9 +91,6 @@ def main():
 
     # see skia/modules/canvaskit/compile.sh for reference:
     args += [
-        'cc="emcc"',
-        'cxx="emcc"',
-        'ar="emar"',
         'skia_use_dng_sdk=false',
         'skia_use_libjpeg_turbo_decode=true',
         'skia_use_libjpeg_turbo_encode=true',
