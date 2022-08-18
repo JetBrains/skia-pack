@@ -2,6 +2,7 @@ on:
   push:
     branches:
       - main
+      - 'test/**'
     paths:
       - ".github/workflows/*"
       - "script/*"
@@ -104,13 +105,13 @@ jobs:
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
-      - run: sudo ./script/prepare_linux_wasm.sh
+      - run: ./script/prepare_linux_wasm.sh
       - run: python3 script/check_release.py --version ${{ env.version }} --target wasm --build-type ${{ matrix.build_type }} --machine wasm
         if: ${{ github.event.inputs.skip_release != 'true' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: python3 script/checkout.py --version ${{ env.version }}
-      - run: python3 script/build.py --target wasm --machine wasm --build-type ${{ matrix.build_type }}
+      - run: bash -c ". ./emsdk/emsdk_env.sh && python3 script/build.py --target wasm --machine wasm --build-type ${{ matrix.build_type }}"
       - run: python3 script/archive.py --version ${{ env.version }} --target wasm --machine wasm --build-type ${{ matrix.build_type }}
       - uses: actions/upload-artifact@v2
         with:
