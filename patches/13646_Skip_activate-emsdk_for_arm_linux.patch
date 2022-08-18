@@ -4,12 +4,12 @@ Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 <+>UTF-8
 ===================================================================
 diff --git a/bin/activate-emsdk b/bin/activate-emsdk
---- a/bin/activate-emsdk	(revision 9e5098d36e88e0eaf5a3b4eb53ed1a21dacac660)
-+++ b/bin/activate-emsdk	(revision 0450b8d5a2a40aea9b31e1b467ee6c39f0c6f06d)
+--- a/bin/activate-emsdk	(revision f204b137b97b44b7397de173fc54181c37ac6501)
++++ b/bin/activate-emsdk	(date 1660831052947)
 @@ -1,4 +1,4 @@
 -#!/usr/bin/env python
 +#!/usr/bin/env python3
- 
+
  # Copyright 2022 Google LLC
  #
 @@ -8,6 +8,7 @@
@@ -17,14 +17,15 @@ diff --git a/bin/activate-emsdk b/bin/activate-emsdk
  import subprocess
  import sys
 +import sysconfig
- 
+
  EMSDK_ROOT = os.path.join('third_party', 'externals', 'emsdk')
- 
-@@ -16,6 +17,11 @@
+
+@@ -16,6 +17,12 @@
  EMSDK_VERSION = '3.1.15'
- 
+
  def main():
 +    if sysconfig.get_platform() in ['linux-aarch64', 'linux-arm64']:
++        print("Skipping EMSDK installation")
 +        # This platform cannot install emsdk at the provided version. See
 +        # https://github.com/emscripten-core/emsdk/blob/main/emscripten-releases-tags.json#L5
 +        # for the latest version
