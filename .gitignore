@@ -1,4 +1,6 @@
 /skia
 /depot_tools
+/gn
+/build
 *.zip
 __pycache__
