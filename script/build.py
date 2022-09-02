@@ -1,9 +1,10 @@
 #! /usr/bin/env python3
 
 import common, os, subprocess, sys
+from checkout import chdir_home
 
 def main():
-  os.chdir(os.path.join(os.path.dirname(__file__), os.pardir, 'skia'))
+  chdir_home()
 
   build_type = common.build_type()
   machine = common.machine()
@@ -11,9 +12,11 @@ def main():
   host_machine = common.host_machine()
   target = common.target()
   ndk = common.ndk()
+  is_win = common.windows()
+  is_mingw = "mingw" == host
 
   tools_dir = "depot_tools"
-  ninja = 'ninja.exe' if 'windows' == host else 'ninja'
+  ninja = 'ninja.exe' if is_win else 'ninja'
   isIos = 'ios' == target or 'iosSim' == target
   isIosSim = 'iosSim' == target
 
@@ -73,12 +76,19 @@ def main():
             'cc="gcc-9"',
             'cxx="g++-9"',
         ]
-  elif 'windows' == target:
-    args += [
-      # 'skia_use_angle=true',
-      'skia_use_direct3d=true',
-      'extra_cflags=["-DSK_FONT_HOST_USE_SYSTEM_SETTINGS"]',
-    ]
+  elif is_win:
+    if is_mingw:
+      args += [
+        'extra_cflags_cc=["-fno-exceptions", "-fno-rtti","-D_GLIBCXX_USE_CXX11_ABI=0", "-fpermissive"]',
+        'cc="gcc"',
+        'cxx="g++"',
+      ]
+    else:
+      args += [
+        # 'skia_use_angle=true',
+        'skia_use_direct3d=true',
+        'extra_cflags=["-DSK_FONT_HOST_USE_SYSTEM_SETTINGS"]'
+      ]
   elif 'android' == target:
     args += [
       'ndk="'+ ndk + '"'
@@ -123,11 +133,29 @@ def main():
     tools_dir = 'tools'
     ninja = 'ninja-linux-arm64'
 
+  ninja_path = os.path.join('..', tools_dir, ninja)
+
+  env = os.environ.copy()
+
+  if is_mingw:
+    os.chdir("gn")
+    subprocess.check_call(["python", "build/gen.py", "--out-path=out/" + machine, "--platform=mingw"], env=env)
+    subprocess.check_call([ninja_path, "-C", "out/" + machine], env=env)
+    os.chdir("..")
+
+  os.chdir('skia')
+
   out = os.path.join('out', build_type + '-' + target + '-' + machine)
-  gn = 'gn.exe' if 'windows' == host else 'gn'
-  print([os.path.join('bin', gn), 'gen', out, '--args=' + ' '.join(args)])
-  subprocess.check_call([os.path.join('bin', gn), 'gen', out, '--args=' + ' '.join(args)])
-  subprocess.check_call([os.path.join('..', tools_dir, ninja), '-C', out, 'skia', 'modules'])
+
+  gn = 'gn.exe' if is_win else 'gn'
+  if is_mingw:
+    gn_path = os.path.join('..', 'gn', 'out', machine, gn)
+  else:
+    gn_path = os.path.join('bin', gn)
+
+  print([gn_path, 'gen', out, '--args=' + ' '.join(args)])
+  subprocess.check_call([gn_path, 'gen', out, '--args=' + ' '.join(args)], env=env)
+  subprocess.check_call([ninja_path, '-C', out, 'skia', 'modules'], env=env)
 
   return 0
 

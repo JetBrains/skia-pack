@@ -1,0 +1,650 @@
+From f244a8bd9b2e2b472998720465ee0aa6b20acdcc Mon Sep 17 00:00:00 2001
+From: Vinicius Rangel <me@viniciusrangel.dev>
+Date: Sat, 20 Aug 2022 16:16:52 -0300
+Subject: [PATCH] fixes to compile
+
+---
+ BUILD.gn                                   | 72 ++++++++++++++------
+ gn/BUILDCONFIG.gn                          |  8 ++-
+ gn/portable/BUILD.gn                       |  4 +-
+ gn/skia/BUILD.gn                           | 79 ++++++++++++++--------
+ gn/toolchain/BUILD.gn                      | 17 ++++-
+ src/ports/SkImageEncoder_WIC.cpp           |  3 +-
+ src/ports/SkImageGeneratorWIC.cpp          |  2 +-
+ src/ports/SkScalerContext_win_dw.cpp       |  2 +-
+ src/utils/SkParse.cpp                      |  6 +-
+ third_party/third_party.gni                |  2 +-
+ third_party/vulkanmemoryallocator/BUILD.gn |  2 +-
+ third_party/zlib/BUILD.gn                  | 10 +--
+ 12 files changed, 142 insertions(+), 65 deletions(-)
+
+diff --git a/BUILD.gn b/BUILD.gn
+index d59c186016..69f28b7c33 100644
+--- a/BUILD.gn
++++ b/BUILD.gn
+@@ -184,7 +184,7 @@ opts("crc32") {
+ opts("sse2") {
+   enabled = is_x86
+   sources = skia_opts.sse2_sources
+-  if (!is_clang && is_win) {
++  if (!is_clang && is_win && !is_mingw) {
+     defines = [ "SK_CPU_SSE_LEVEL=SK_CPU_SSE_LEVEL_SSE2" ]
+   } else {
+     cflags = [ "-msse2" ]
+@@ -194,7 +194,7 @@ opts("sse2") {
+ opts("ssse3") {
+   enabled = is_x86
+   sources = skia_opts.ssse3_sources
+-  if (!is_clang && is_win) {
++  if (!is_clang && is_win && !is_mingw) {
+     defines = [ "SK_CPU_SSE_LEVEL=SK_CPU_SSE_LEVEL_SSSE3" ]
+   } else {
+     cflags = [ "-mssse3" ]
+@@ -204,7 +204,7 @@ opts("ssse3") {
+ opts("sse41") {
+   enabled = is_x86
+   sources = skia_opts.sse41_sources
+-  if (!is_clang && is_win) {
++  if (!is_clang && is_win && !is_mingw) {
+     defines = [ "SK_CPU_SSE_LEVEL=SK_CPU_SSE_LEVEL_SSE41" ]
+   } else {
+     cflags = [ "-msse4.1" ]
+@@ -214,7 +214,7 @@ opts("sse41") {
+ opts("sse42") {
+   enabled = is_x86
+   sources = skia_opts.sse42_sources
+-  if (!is_clang && is_win) {
++  if (!is_clang && is_win && !is_mingw) {
+     defines = [ "SK_CPU_SSE_LEVEL=SK_CPU_SSE_LEVEL_SSE42" ]
+   } else {
+     cflags = [ "-msse4.2" ]
+@@ -224,7 +224,7 @@ opts("sse42") {
+ opts("avx") {
+   enabled = is_x86
+   sources = skia_opts.avx_sources
+-  if (is_win) {
++  if (is_win && !is_mingw) {
+     cflags = [ "/arch:AVX" ]
+   } else {
+     cflags = [ "-mavx" ]
+@@ -237,7 +237,7 @@ opts("avx") {
+ opts("hsw") {
+   enabled = is_x86
+   sources = skia_opts.hsw_sources
+-  if (is_win) {
++  if (is_win && !is_mingw) {
+     cflags = [ "/arch:AVX2" ]
+   } else {
+     cflags = [ "-march=haswell" ]
+@@ -250,7 +250,7 @@ opts("hsw") {
+ opts("skx") {
+   enabled = is_x86
+   sources = skia_opts.skx_sources
+-  if (is_win) {
++  if (is_win && !is_mingw) {
+     cflags = [ "/arch:AVX512" ]
+   } else {
+     cflags = [ "-march=skylake-avx512" ]
+@@ -578,7 +578,11 @@ optional("fontmgr_win_gdi") {
+ 
+   public = [ "include/ports/SkTypeface_win.h" ]
+   sources = [ "src/ports/SkFontHost_win.cpp" ]
+-  libs = [ "Gdi32.lib" ]
++  if (!is_mingw){
++    libs = [ "Gdi32.lib" ]
++  } else {
++    libs = [ "gdi32" ]
++  }
+ }
+ 
+ if (skia_lex) {
+@@ -1679,7 +1679,7 @@ if (skia_enable_tools) {
+   }
+
+   config("cpp17") {
+-    if (is_win) {
++    if (is_win && !is_mingw) {
+       cflags_cc = [ "/std:c++17" ]
+     } else {
+       cflags_cc = [ "-std=c++17" ]
+@@ -943,7 +947,11 @@ optional("gpu") {
+     } else if (is_win && !skia_enable_winuwp) {
+       sources += [ "src/gpu/ganesh/gl/win/GrGLMakeNativeInterface_win.cpp" ]
+       if (target_cpu != "arm64") {
+-        libs += [ "OpenGL32.lib" ]
++        if (!is_mingw){
++          libs = [ "OpenGL32.lib" ]
++        } else {
++          libs = [ "opengl32" ]
++        }
+       }
+     } else {
+       sources += [ "src/gpu/ganesh/gl/GrGLMakeNativeInterface_none.cpp" ]
+@@ -1416,18 +1424,36 @@ skia_component("skia") {
+       "src/ports/SkOSFile_win.cpp",
+       "src/ports/SkOSLibrary_win.cpp",
+     ]
+-    libs += [
+-      "Ole32.lib",
+-      "OleAut32.lib",
+-    ]
+ 
+-    if (!skia_enable_winuwp) {
++    if (!is_mingw) {
++      libs += [
++        "Ole32.lib",
++        "OleAut32.lib",
++      ]
++    } else {
+       libs += [
+-        "FontSub.lib",
+-        "User32.lib",
+-        "Usp10.lib",
++        "ole32",
++        "oleaut32",
++        "uuid",
+       ]
+     }
++
++
++    if (!skia_enable_winuwp) {
++      if (!is_mingw) {
++        libs += [
++          "FontSub.lib",
++          "User32.lib",
++          "Usp10.lib",
++        ]
++      } else {
++        libs += [
++          "fontsub",
++          "user32",
++          "usp10",
++        ]
++      }
++    }
+   } else {
+     sources += [
+       "src/ports/SkOSFile_posix.cpp",
+@@ -1865,9 +1891,17 @@ if (skia_enable_tools) {
+         ]
+       } else if (is_win) {
+         sources += [ "tools/gpu/gl/win/CreatePlatformGLTestContext_win.cpp" ]
+-        libs += [ "Gdi32.lib" ]
++        if (!is_mingw){
++          libs += [ "Gdi32.lib" ]
++        } else {
++          libs += [ "gdi32" ]
++        }
+         if (target_cpu != "arm64") {
+-          libs += [ "OpenGL32.lib" ]
++          if (!is_mingw){
++            libs += [ "OpenGL32.lib" ]
++          } else {
++            libs += [ "opengl32" ]
++          }
+         }
+       }
+     }
+diff --git a/gn/BUILDCONFIG.gn b/gn/BUILDCONFIG.gn
+index 44f39c5aaa..c37cd5549b 100644
+--- a/gn/BUILDCONFIG.gn
++++ b/gn/BUILDCONFIG.gn
+@@ -64,6 +64,8 @@ is_mac = current_os == "mac"
+ is_wasm = current_os == "wasm"
+ is_win = current_os == "win"
+ 
++is_mingw = true
++
+ # This is just to make the Dawn build files happy. Skia itself uses target_os = "linux"
+ # for ChromeOS, so this variable will not affect Skia proper.
+ is_chromeos = false
+@@ -123,7 +125,7 @@ if (is_android) {
+   }
+ }
+ 
+-if (target_os == "win") {
++if (target_os == "win" && !is_mingw) {
+   # By default we look for 2017 (Enterprise, Pro, and Community), then 2015. If MSVC is installed in a
+   # non-default location, you can set win_vc to inform us where it is.
+ 
+@@ -134,7 +136,7 @@ if (target_os == "win") {
+                         # directory.
+ }
+ 
+-if (target_os == "win") {
++if (target_os == "win" && !is_mingw) {
+   if (win_toolchain_version == "") {
+     win_toolchain_version = exec_script("//gn/highest_version_dir.py",
+                                         [
+@@ -224,7 +226,7 @@ if (!is_official_build) {
+       [ "//gn/skia:warnings_for_public_headers" ]
+ }
+ 
+-if (is_win) {
++if (is_win && !is_mingw) {
+   # Windows tool chain
+   set_default_toolchain("//gn/toolchain:msvc")
+   default_toolchain_name = "msvc"
+diff --git a/gn/portable/BUILD.gn b/gn/portable/BUILD.gn
+index 48cb62cc7f..0e34734dc1 100644
+--- a/gn/portable/BUILD.gn
++++ b/gn/portable/BUILD.gn
+@@ -4,7 +4,7 @@
+ # found in the LICENSE file.
+ 
+ config("add_exceptions") {
+-  if (is_win) {
++  if (is_win && !is_mingw) {
+     cflags_cc = [ "/EHsc" ]
+   } else {
+     cflags_cc = [ "-fexceptions" ]
+@@ -12,7 +12,7 @@ config("add_exceptions") {
+ }
+ 
+ config("add_rtti") {
+-  if (is_win) {
++  if (is_win && !is_mingw) {
+     cflags_cc = [ "/GR" ]
+   } else {
+     cflags_cc = [ "-frtti" ]
+diff --git a/gn/skia/BUILD.gn b/gn/skia/BUILD.gn
+index e0f573c356..23e40f33ce 100644
+--- a/gn/skia/BUILD.gn
++++ b/gn/skia/BUILD.gn
+@@ -60,7 +60,7 @@ config("default") {
+   # Disable warnings about unknown attributes.
+   # (These unknown attribute warnings are on by default, so we don't make
+   # disabling them part of :warnings, as some targets remove :warnings.)
+-  if (is_win && !is_clang) {
++  if (is_win && !is_clang && !is_mingw) {
+     cflags += [ "/wd5030" ]
+   } else {
+     cflags += [ "-Wno-attributes" ]
+@@ -90,11 +90,25 @@ config("default") {
+     if (is_clang && target_cpu == "arm64") {
+       cflags += [ "--target=arm64-windows" ]
+     }
+-    cflags += [
+-      "/bigobj",  # Some of our files are bigger than the regular limits.
+-      "/utf-8",  # Set Source and Executable character sets to UTF-8.
+-    ]
+-    cflags_cc += [ "/std:c++17" ]
++    if(!is_mingw) {
++      cflags += [
++        "/bigobj",  # Some of our files are bigger than the regular limits.
++        "/utf-8",  # Set Source and Executable character sets to UTF-8.
++      ]
++      cflags_cc += [ "/std:c++17" ]
++    } else {
++      cflags += [
++        "-fstrict-aliasing",
++        "-fPIC",
++        "-fvisibility=hidden",
++      ]
++      cflags_c += [
++        "-fvisibility-inlines-hidden",
++      ]
++      cflags_cc += [
++        "-std=c++17",
++      ]
++    }
+     defines += [
+       "_CRT_SECURE_NO_WARNINGS",  # Disables warnings about sscanf().
+       "_HAS_EXCEPTIONS=0",  # Disables exceptions in MSVC STL.
+@@ -102,15 +116,19 @@ config("default") {
+       "NOMINMAX",
+     ]
+ 
+-    _include_dirs = [
+-      "$win_vc/Tools/MSVC/$win_toolchain_version/include",
+-      "$win_sdk/Include/$win_sdk_version/shared",
+-      "$win_sdk/Include/$win_sdk_version/ucrt",
+-      "$win_sdk/Include/$win_sdk_version/um",
+-      "$win_sdk/Include/$win_sdk_version/winrt",
+-    ]
++    if (!is_mingw) {
++      _include_dirs = [
++        "$win_vc/Tools/MSVC/$win_toolchain_version/include",
++        "$win_sdk/Include/$win_sdk_version/shared",
++        "$win_sdk/Include/$win_sdk_version/ucrt",
++        "$win_sdk/Include/$win_sdk_version/um",
++        "$win_sdk/Include/$win_sdk_version/winrt",
++      ]
++    } else {
++      _include_dirs = []
++    }
+ 
+-    if (is_clang) {
++    if (is_clang && !is_mingw) {
+       foreach(dir, _include_dirs) {
+         cflags += [
+           "-imsvc",
+@@ -120,12 +138,15 @@ config("default") {
+     } else {
+       include_dirs = _include_dirs
+     }
+-
+-    lib_dirs = [
+-      "$win_sdk/Lib/$win_sdk_version/ucrt/$target_cpu",
+-      "$win_sdk/Lib/$win_sdk_version/um/$target_cpu",
+-      "$win_vc/Tools/MSVC/$win_toolchain_version/lib/$target_cpu",
+-    ]
++    if (!is_mingw){
++      lib_dirs = [
++        "$win_sdk/Lib/$win_sdk_version/ucrt/$target_cpu",
++        "$win_sdk/Lib/$win_sdk_version/um/$target_cpu",
++        "$win_vc/Tools/MSVC/$win_toolchain_version/lib/$target_cpu",
++      ]
++    } else {
++      lib_dirs = []
++    }
+   } else {
+     cflags += [
+       "-fstrict-aliasing",
+@@ -144,7 +165,7 @@ config("default") {
+       "-mfpu=neon",
+       "-mthumb",
+     ]
+-  } else if (current_cpu == "x86" && !is_win) {
++  } else if (current_cpu == "x86" && is_mingw) {
+     asmflags += [ "-m32" ]
+     cflags += [
+       "-m32",
+@@ -154,7 +175,7 @@ config("default") {
+     ldflags += [ "-m32" ]
+   }
+ 
+-  if (malloc != "" && !is_win) {
++  if (malloc != "" && is_mingw) {
+     cflags += [
+       "-fno-builtin-malloc",
+       "-fno-builtin-calloc",
+@@ -352,7 +373,7 @@ config("recover_pointer_overflow") {
+ 
+ config("no_exceptions") {
+   # Exceptions are disabled by default on Windows.  (Use /EHsc to enable them.)
+-  if (!is_win) {
++  if (!is_win || is_mingw) {
+     cflags_cc = [ "-fno-exceptions" ]
+     cflags_objcc = cflags_cc
+   }
+@@ -365,14 +386,14 @@ config("warnings") {
+   cflags_objcc = []
+ 
+   if (werror) {
+-    if (is_win) {
++    if (!is_mingw && is_win) {
+       cflags += [ "/WX" ]
+     } else {
+       cflags += [ "-Werror" ]
+     }
+   }
+ 
+-  if (is_win) {
++  if (is_win && !is_mingw) {
+     cflags += [
+       "/W3",  # Turn on lots of warnings.
+ 
+@@ -577,7 +598,7 @@ config("debug_symbols") {
+       "-gline-tables-only",
+       "-funwind-tables",  # Helps make in-process backtraces fuller.
+     ]
+-  } else if (is_win) {
++  } else if (is_win && !is_mingw) {
+     cflags = [ "/Z7" ]
+     if (is_clang) {
+       cflags += [ "-gcodeview-ghash" ]
+@@ -592,7 +613,7 @@ config("debug_symbols") {
+ 
+ config("no_rtti") {
+   if (sanitize != "ASAN") {  # -fsanitize=vptr requires RTTI
+-    if (is_win) {
++    if (is_win && !is_mingw) {
+       cflags_cc = [ "/GR-" ]
+     } else {
+       cflags_cc = [ "-fno-rtti" ]
+@@ -602,7 +623,7 @@ config("no_rtti") {
+ }
+ 
+ config("optimize") {
+-  if (is_win) {
++  if (is_win && !is_mingw) {
+     cflags = [
+       "/O2",
+       "/Zc:inline",
+@@ -642,7 +663,7 @@ config("executable") {
+       "-rdynamic",
+       "-Wl,-rpath,\$ORIGIN",
+     ]
+-  } else if (is_win) {
++  } else if (is_win && !is_mingw) {
+     ldflags = [
+       "/SUBSYSTEM:CONSOLE",  # Quiet "no subsystem specified; CONSOLE assumed".
+       "/INCREMENTAL:NO",  # Quiet warnings about failing to incrementally link
+diff --git a/gn/toolchain/BUILD.gn b/gn/toolchain/BUILD.gn
+index ba85c3d54e..3864ace210 100644
+--- a/gn/toolchain/BUILD.gn
++++ b/gn/toolchain/BUILD.gn
+@@ -322,6 +322,9 @@ template("gcc_like_toolchain") {
+       if (is_mac || is_ios) {
+         rpath = "-Wl,-install_name,@rpath/$soname"
+       }
++      if (is_mingw) {
++        rpath = ""  # For PE/COFF the soname argument has no effect
++      }
+ 
+       rspfile = "{{output}}.rsp"
+       rspfile_content = "{{inputs}}"
+@@ -339,11 +342,23 @@ template("gcc_like_toolchain") {
+         _end_group = ""
+       }
+ 
+-      command = "$link -shared {{ldflags}} $_start_group @$rspfile {{frameworks}} {{solibs}} $_end_group {{libs}} $rpath -o {{output}}"
++      _mingw_flags = ""
++      if (is_mingw) {
++        # Have MinGW linker generate a .def file and a .a import library
++        if (!is_clang) {
++          _mingw_flags += " -Wl,--dll "
++        }
++        _mingw_flags +=
++            " -Wl,--output-def=$soname.def -Wl,--out-implib=$soname.a "
++      }
++
++      command = "$link -shared {{ldflags}} $_start_group @$rspfile {{frameworks}} {{solibs}} $_end_group $_mingw_flags {{libs}} $rpath -o {{output}}"
+       outputs = [ "{{root_out_dir}}/$soname" ]
+       output_prefix = "lib"
+       if (is_mac || is_ios) {
+         default_output_extension = ".dylib"
++      } else if(is_mingw) {
++        default_output_extension = ".dll"
+       } else {
+         default_output_extension = ".so"
+       }
+diff --git a/src/ports/SkImageEncoder_WIC.cpp b/src/ports/SkImageEncoder_WIC.cpp
+index af1ec698ac..7cec2e8e65 100644
+--- a/src/ports/SkImageEncoder_WIC.cpp
++++ b/src/ports/SkImageEncoder_WIC.cpp
+@@ -26,7 +26,8 @@
+ //but CLSID_WICImagingFactory is then #defined to CLSID_WICImagingFactory2.
+ //Undo this #define if it has been done so that we link against the symbols
+ //we intended to link against on all SDKs.
+-#if defined(CLSID_WICImagingFactory)
++
++#if defined(CLSID_WICImagingFactory) && !defined(__MINGW32__)
+ #undef CLSID_WICImagingFactory
+ #endif
+ 
+diff --git a/src/ports/SkImageGeneratorWIC.cpp b/src/ports/SkImageGeneratorWIC.cpp
+index a914d08fdb..891b2ec64d 100644
+--- a/src/ports/SkImageGeneratorWIC.cpp
++++ b/src/ports/SkImageGeneratorWIC.cpp
+@@ -18,7 +18,7 @@
+ // but CLSID_WICImagingFactory is then #defined to CLSID_WICImagingFactory2.
+ // Undo this #define if it has been done so that we link against the symbols
+ // we intended to link against on all SDKs.
+-#if defined(CLSID_WICImagingFactory)
++#if defined(CLSID_WICImagingFactory) && !defined(__MINGW32__)
+     #undef CLSID_WICImagingFactory
+ #endif
+ 
+diff --git a/src/ports/SkScalerContext_win_dw.cpp b/src/ports/SkScalerContext_win_dw.cpp
+index 045b59a361..ded0d3e156 100644
+--- a/src/ports/SkScalerContext_win_dw.cpp
++++ b/src/ports/SkScalerContext_win_dw.cpp
+@@ -566,7 +566,7 @@ bool SkScalerContext_DW::isPngGlyph(const SkGlyph& glyph) {
+ 
+     DWRITE_GLYPH_IMAGE_FORMATS f;
+     IDWriteFontFace4* fontFace4 = this->getDWriteTypeface()->fDWriteFontFace4.get();
+-    HRBM(fontFace4->GetGlyphImageFormats(glyph.getGlyphID(), 0, UINT32_MAX, &f),
++    HRBM(fontFace4->GetGlyphImageFormats_(glyph.getGlyphID(), 0, UINT32_MAX, &f),
+          "Cannot get glyph image formats.");
+     return f & DWRITE_GLYPH_IMAGE_FORMATS_PNG;
+ }
+@@ -580,7 +580,7 @@ bool SkScalerContext_DW::isSVGGlyph(const SkGlyph& glyph) {
+ 
+     DWRITE_GLYPH_IMAGE_FORMATS f;
+     IDWriteFontFace4* fontFace4 = this->getDWriteTypeface()->fDWriteFontFace4.get();
+-    HRBM(fontFace4->GetGlyphImageFormats(glyph.getGlyphID(), 0, UINT32_MAX, &f),
++    HRBM(fontFace4->GetGlyphImageFormats_(glyph.getGlyphID(), 0, UINT32_MAX, &f),
+          "Cannot get glyph image formats.");
+     return f & DWRITE_GLYPH_IMAGE_FORMATS_SVG;
+ }
+
+diff --git a/src/utils/SkParse.cpp b/src/utils/SkParse.cpp
+index 085a7f6fcf..4bdb2cea4a 100644
+--- a/src/utils/SkParse.cpp
++++ b/src/utils/SkParse.cpp
+@@ -208,7 +208,11 @@ const char* SkParse::FindMSec(const char str[], SkMSec* value)
+ 
+ #if defined(SK_BUILD_FOR_WIN)
+   static const _locale_t kDefaultLocale = _create_locale(LC_ALL, "C");
+-  #define strtof_l(a, b, c) _strtof_l((a), (b), (c))
++  #if defined(__MINGW32__)
++    #define strtof_l(a, b, c) strtof(a, b)
++  #else
++    #define strtof_l(a, b, c) _strtof_l((a), (b), (c))
++  #endif
+ #else
+   static const locale_t kDefaultLocale = newlocale(LC_ALL_MASK, "C", nullptr);
+ #endif
+diff --git a/third_party/third_party.gni b/third_party/third_party.gni
+index cbcd16cf38..7aa8e1e7b0 100644
+--- a/third_party/third_party.gni
++++ b/third_party/third_party.gni
+@@ -92,7 +92,7 @@ template("third_party") {
+       if (!defined(cflags)) {
+         cflags = []
+       }
+-      if (is_win) {
++      if (is_win && !is_mingw) {
+         cflags += [ "/w" ]
+       } else {
+         cflags += [ "-w" ]
+diff --git a/third_party/vulkanmemoryallocator/BUILD.gn b/third_party/vulkanmemoryallocator/BUILD.gn
+index f203a09591..5d7cfc47a4 100644
+--- a/third_party/vulkanmemoryallocator/BUILD.gn
++++ b/third_party/vulkanmemoryallocator/BUILD.gn
+@@ -27,7 +27,7 @@ source_set("vulkanmemoryallocator") {
+   ]
+ 
+   # Warnings are just noise if we're not maintaining the code.
+-  if (is_win) {
++  if (is_win && !is_mingw) {
+     cflags = [ "/w" ]
+   } else {
+     cflags = [ "-w" ]
+diff --git a/third_party/zlib/BUILD.gn b/third_party/zlib/BUILD.gn
+index 0c92eff65b..1212042c38 100644
+--- a/third_party/zlib/BUILD.gn
++++ b/third_party/zlib/BUILD.gn
+@@ -50,7 +50,7 @@ if (skia_use_system_zlib) {
+     }
+ 
+     # Warnings are just noise if we're not maintaining the code.
+-    if (is_win) {
++    if (is_win && !is_mingw) {
+       cflags = [ "/w" ]
+     } else {
+       cflags = [ "-w" ]
+@@ -62,7 +62,7 @@ if (skia_use_system_zlib) {
+     configs += [ ":zlib_simd_config" ]
+     if (use_x86_x64_optimizations) {
+       defines = [ "ADLER32_SIMD_SSSE3" ]
+-      if (!is_win || is_clang) {
++      if (!is_win || is_clang || is_mingw) {
+         cflags = [ "-mssse3" ]
+       }
+     }
+@@ -85,14 +85,14 @@ if (skia_use_system_zlib) {
+       # An ARMv7 GCC build will fail to compile without building this target
+       # for ARMv8-a+crc and letting runtime cpu detection select the correct
+       # function.
+-      if (!is_win && !is_clang) {
++      if (!is_win && !is_clang && !is_mingw) {
+         cflags_c = [ "-march=armv8-a+crc" ]
+       }
+     }
+ 
+     if (use_x86_x64_optimizations) {
+       defines = [ "CRC32_SIMD_SSE42_PCLMUL" ]
+-      if (!is_win || is_clang) {
++      if (!is_win || is_clang || is_mingw) {
+         cflags = [
+           "-msse4.2",
+           "-mpclmul",
+@@ -138,7 +138,7 @@ if (skia_use_system_zlib) {
+         "CRC32_SIMD_SSE42_PCLMUL",
+         "DEFLATE_FILL_WINDOW_SSE2",
+       ]
+-      if (!is_win || is_clang) {
++      if (!is_win || is_clang || is_mingw) {
+         cflags = [
+           "-msse4.2",
+           "-mpclmul",
+
+diff --git a/src/ports/SkFontHost_win.cpp b/src/ports/SkFontHost_win.cpp
+index d22cf559d1..01936879ad 100644
+--- a/src/ports/SkFontHost_win.cpp
++++ b/src/ports/SkFontHost_win.cpp
+@@ -1073,7 +1073,8 @@ void SkScalerContext_GDI::RGBToA8(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
+         for (int i = 0; i < width; i++) {
+             dst[i] = rgb_to_a8<APPLY_PREBLEND>(src[i], table8);
+             if constexpr (kSkShowTextBlitCoverage) {
+-                dst[i] = std::max(dst[i], 10u);
++                uint8_t v = 10u;
++                dst[i] = std::max(dst[i], v);
+             }
+         }
+         src = SkTAddOffset<const SkGdiRGB>(src, srcRB);
+
+diff --git a/src/utils/win/SkWGL_win.cpp b/src/utils/win/SkWGL_win.cpp
+index 8987fbbde9..0f2f1635fe 100644
+--- a/src/utils/win/SkWGL_win.cpp
++++ b/src/utils/win/SkWGL_win.cpp
+@@ -15,6 +15,8 @@
+ #include "src/core/SkTSearch.h"
+ #include "src/core/SkTSort.h"
+ 
++#include <iterator>
++
+ bool SkWGLExtensions::hasExtension(HDC dc, const char* ext) const {
+     if (nullptr == this->fGetExtensionsString) {
+         return false;
+
+diff --git a/src/ports/SkMemory_malloc.cpp b/src/ports/SkMemory_malloc.cpp
+index 8839639f12..9369bf2055 100644
+--- a/src/ports/SkMemory_malloc.cpp
++++ b/src/ports/SkMemory_malloc.cpp
+@@ -43,7 +43,7 @@ void sk_abort_no_print() {
+     // do not display a system dialog before aborting the process
+     _set_abort_behavior(0, _WRITE_ABORT_MSG);
+ #endif
+-#if defined(SK_DEBUG) && defined(SK_BUILD_FOR_WIN)
++#if defined(SK_DEBUG) && defined(SK_BUILD_FOR_WIN) && !defined(__MINGW32__)
+     __fastfail(FAST_FAIL_FATAL_APP_EXIT);
+ #elif defined(__clang__)
+     __builtin_trap();
+
+-- 
+2.37.1.windows.1
+

@@ -230,3 +230,44 @@ jobs:
         if: ${{ github.event.inputs.skip_release != 'true' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  mingw:
+    runs-on: windows-2022
+    strategy:
+      matrix:
+        build_type: [Debug, Release]
+      fail-fast: false
+    steps:
+      - run: git config --global core.autocrlf input
+      - uses: actions/checkout@v2
+      - shell: bash
+        run: python3 script/check_release.py --version ${{ env.version }} --build-type ${{ matrix.build_type }} --host mingw
+        if: ${{ github.event.inputs.skip_release != 'true' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: 'MINGW64'
+          update: true
+          install: >-
+            git
+            mingw-w64-x86_64-python
+            mingw-w64-x86_64-ninja
+            mingw-w64-x86_64-gcc
+      - shell: msys2 {0}
+        run: python3 script/checkout.py --version ${{ env.version }} --host mingw
+      - shell: msys2 {0}
+        run: python3 script/checkout_gn_mingw.py --version ${{ env.version }} --host mingw
+      - shell: msys2 {0}
+        run: python3 script/build.py --build-type ${{ matrix.build_type }} --host mingw
+      - shell: bash
+        run: python3 script/archive.py --version ${{ env.version }} --build-type ${{ matrix.build_type }} --host mingw
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Skia-${{ env.version }}-mingw-${{ matrix.build_type }}-x64.zip
+          path: '*.zip'
+      - shell: bash
+        run: python3 script/release.py --version ${{ env.version }} --build-type ${{ matrix.build_type }} --host mingw
+        if: ${{ github.event.inputs.skip_release != 'true' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

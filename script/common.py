@@ -69,3 +69,6 @@ def ndk():
   (args, _) = parser.parse_known_args()
   return args.ndk if args.ndk else ''
 
+def windows():
+  h = host()
+  return 'windows' == h or 'mingw' == h

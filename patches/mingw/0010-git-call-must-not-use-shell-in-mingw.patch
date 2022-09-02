@@ -1,0 +1,25 @@
+From baf0524386df8926d1244e0b870da5483280a56a Mon Sep 17 00:00:00 2001
+From: Vinicius Rangel <me@viniciusrangel.dev>
+Date: Tue, 16 Aug 2022 01:54:04 -0300
+Subject: [PATCH] git call must not use shell in mingw
+
+---
+ build/gen.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/build/gen.py b/build/gen.py
+index 922bf46f..d7716271 100644
+--- a/build/gen.py
++++ b/build/gen.py
+@@ -153,7 +153,7 @@ def main(argv):
+ def GenerateLastCommitPosition(host, header):
+   ROOT_TAG = 'initial-commit'
+   describe_output = subprocess.check_output(
+-      ['git', 'describe', 'HEAD', '--match', ROOT_TAG], shell=host.is_windows(),
++      ['git', 'describe', 'HEAD', '--match', ROOT_TAG], shell=host.is_windows() and not host.is_mingw(),
+       cwd=REPO_ROOT)
+   mo = re.match(ROOT_TAG + '-(\d+)-g([0-9a-f]+)', describe_output.decode())
+   if not mo:
+-- 
+2.37.1.windows.1
+
