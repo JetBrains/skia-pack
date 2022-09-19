@@ -13,7 +13,7 @@ Update `version` in [.github/workflows/build.yml](https://github.com/JetBrains/s
 ## Building locally
 
 ```sh
-python3 script/checkout.py --version m105-f204b137b9-5
+python3 script/checkout.py --version m105-305b7c02
 python3 script/build.py
 python3 script/archive.py
 ```
@@ -21,7 +21,7 @@ python3 script/archive.py
 To build a debug build:
 
 ```sh
-python3 script/checkout.py --version m105-f204b137b9-5
+python3 script/checkout.py --version m105-305b7c02
 python3 script/build.py --build-type Debug
 python3 script/archive.py --build-type Debug
 ```
