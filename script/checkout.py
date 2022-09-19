@@ -27,9 +27,11 @@ def main():
       subprocess.check_call(["git", "checkout", "-B", branch])
       subprocess.check_call(["git", "fetch"])
       subprocess.check_call(["git", "reset", "--hard", "origin/" + branch])
+      subprocess.check_call(["git", "clean", "-d", "-f"])
     else:
       print("> Fetching", branch)
       subprocess.check_call(["git", "reset", "--hard"])
+      subprocess.check_call(["git", "clean", "-d", "-f"])
       subprocess.check_call(["git", "fetch", "origin", branch + ":remotes/origin/" + branch])
       subprocess.check_call(["git", "checkout", branch])
   else:
