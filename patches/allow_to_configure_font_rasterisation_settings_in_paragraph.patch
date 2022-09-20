@@ -1,0 +1,253 @@
+Index: modules/skparagraph/include/FontRastrSettings.h
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/modules/skparagraph/include/FontRastrSettings.h b/modules/skparagraph/include/FontRastrSettings.h
+new file mode 100644
+--- /dev/null	(revision 32db0210aff0ecd7d21b356e1fb0f6799a36b667)
++++ b/modules/skparagraph/include/FontRastrSettings.h	(revision 32db0210aff0ecd7d21b356e1fb0f6799a36b667)
+@@ -0,0 +1,26 @@
++// Copyright 2019 Google LLC.
++#ifndef FontRastrSettings_DEFINED
++#define FontRastrSettings_DEFINED
++
++#include "include/core/SkFont.h"
++
++namespace skia {
++namespace textlayout {
++
++struct FontRastrSettings {
++    FontRastrSettings() {
++        fEdging = SkFont::Edging::kAntiAlias;
++        fHinting = SkFontHinting::kSlight;
++        fSubpixel = true;
++    }
++
++    SkFont::Edging fEdging;
++    SkFontHinting fHinting;
++    bool fSubpixel;
++};
++
++
++}  // namespace textlayout
++}  // namespace skia
++
++#endif  // Metrics_DEFINED
+Index: modules/skparagraph/include/ParagraphStyle.h
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/modules/skparagraph/include/ParagraphStyle.h b/modules/skparagraph/include/ParagraphStyle.h
+--- a/modules/skparagraph/include/ParagraphStyle.h	(revision ddd300815ad78813053c005452a52270cced7397)
++++ b/modules/skparagraph/include/ParagraphStyle.h	(revision 32db0210aff0ecd7d21b356e1fb0f6799a36b667)
+@@ -6,6 +6,7 @@
+ #include "include/core/SkScalar.h"
+ #include "include/core/SkString.h"
+ #include "modules/skparagraph/include/DartTypes.h"
++#include "modules/skparagraph/include/FontRastrSettings.h"
+ #include "modules/skparagraph/include/TextStyle.h"
+ 
+ #include <stddef.h>
+@@ -110,6 +111,9 @@
+     const StrutStyle& getStrutStyle() const { return fStrutStyle; }
+     void setStrutStyle(StrutStyle strutStyle) { fStrutStyle = std::move(strutStyle); }
+ 
++    const FontRastrSettings& getFontRastrSettings() const { return fFontRastrSettings; }
++    void setFontRastrSettings(FontRastrSettings fontRastrSettings) { fFontRastrSettings = fontRastrSettings; }
++
+     const TextStyle& getTextStyle() const { return fDefaultTextStyle; }
+     void setTextStyle(const TextStyle& textStyle) { fDefaultTextStyle = textStyle; }
+ 
+@@ -160,6 +164,7 @@
+     bool fHintingIsOn;
+     bool fReplaceTabCharacters;
+     TextIndent fTextIndent;
++    FontRastrSettings fFontRastrSettings;
+ };
+ }  // namespace textlayout
+ }  // namespace skia
+Index: modules/skparagraph/include/TextStyle.h
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/modules/skparagraph/include/TextStyle.h b/modules/skparagraph/include/TextStyle.h
+--- a/modules/skparagraph/include/TextStyle.h	(revision ddd300815ad78813053c005452a52270cced7397)
++++ b/modules/skparagraph/include/TextStyle.h	(revision 32db0210aff0ecd7d21b356e1fb0f6799a36b667)
+@@ -12,6 +12,7 @@
+ #include "include/core/SkScalar.h"
+ #include "modules/skparagraph/include/DartTypes.h"
+ #include "modules/skparagraph/include/FontArguments.h"
++#include "modules/skparagraph/include/FontRastrSettings.h"
+ #include "modules/skparagraph/include/TextShadow.h"
+ 
+ // TODO: Make it external so the other platforms (Android) could use it
+@@ -248,6 +249,9 @@
+     sk_sp<SkTypeface> refTypeface() const { return fTypeface; }
+     void setTypeface(sk_sp<SkTypeface> typeface) { fTypeface = std::move(typeface); }
+ 
++    const FontRastrSettings& getFontRastrSettings() const { return fFontRastrSettings; }
++    void setFontRastrSettings(FontRastrSettings fontRastrSettings) { fFontRastrSettings = fontRastrSettings; }
++
+     SkString getLocale() const { return fLocale; }
+     void setLocale(const SkString& locale) { fLocale = locale; }
+ 
+@@ -299,6 +303,7 @@
+ 
+     sk_sp<SkTypeface> fTypeface;
+     bool fIsPlaceholder = false;
++    FontRastrSettings fFontRastrSettings;
+ 
+     std::vector<FontFeature> fFontFeatures;
+ 
+Index: modules/skparagraph/samples/SampleParagraph.cpp
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/modules/skparagraph/samples/SampleParagraph.cpp b/modules/skparagraph/samples/SampleParagraph.cpp
+--- a/modules/skparagraph/samples/SampleParagraph.cpp	(revision ddd300815ad78813053c005452a52270cced7397)
++++ b/modules/skparagraph/samples/SampleParagraph.cpp	(revision 32db0210aff0ecd7d21b356e1fb0f6799a36b667)
+@@ -14,6 +14,7 @@
+ #include "include/effects/SkGradientShader.h"
+ #include "include/utils/SkRandom.h"
+ #include "modules/skparagraph/include/Paragraph.h"
++#include "modules/skparagraph/include/ParagraphStyle.h"
+ #include "modules/skparagraph/include/TypefaceFontProvider.h"
+ #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
+ #include "modules/skparagraph/src/ParagraphImpl.h"
+@@ -3715,6 +3716,68 @@
+ };
+ 
+ 
++class ParagraphView66 : public ParagraphView_Base {
++protected:
++    SkString name() override { return SkString("ParagraphView66"); }
++
++    std::unique_ptr<Paragraph> paragraphWithRastrSettings(sk_sp<FontCollection> fontCollection,
++                                                          const char* text,
++                                                          SkFont::Edging edging,
++                                                          SkFontHinting hinting,
++                                                          bool subpixel) {
++        FontRastrSettings fontRastrSettings;
++        fontRastrSettings.fEdging = edging;
++        fontRastrSettings.fHinting = hinting;
++        fontRastrSettings.fSubpixel = subpixel;
++
++
++        ParagraphStyle paragraph_style;
++        paragraph_style.setFontRastrSettings(fontRastrSettings);
++        TextStyle textStyle;
++        textStyle.setFontFamilies({SkString("Roboto")});
++        textStyle.setFontSize(14.0);
++        textStyle.setColor(SK_ColorBLACK);
++        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
++        builder.pushStyle(textStyle);
++        builder.addText(text);
++        return builder.Build();
++    }
++
++    void onDrawContent(SkCanvas* canvas) override {
++      canvas->drawColor(SK_ColorWHITE);
++
++      auto fontCollection =
++          sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), false, true);
++
++      auto paragraph1 = paragraphWithRastrSettings(fontCollection, "Lorien Ipsum [kAntiAlias, SkFontHinting::kSlight, subpixle: true] [default]",
++                                                   SkFont::Edging::kAntiAlias,
++                                                   SkFontHinting::kSlight,
++                                                   true);
++
++      auto paragraph2 = paragraphWithRastrSettings(fontCollection, "Lorien Ipsum [kSubpixelAntiAlias, SkFontHinting::kFull, subpixle: true]",
++                                                   SkFont::Edging::kSubpixelAntiAlias,
++                                                   SkFontHinting::kFull,
++                                                   true);
++
++      auto paragraph3 = paragraphWithRastrSettings(fontCollection, "Lorien Ipsum [kSubpixelAntiAlias, SkFontHinting::kFull, subpixle: false]",
++                                                   SkFont::Edging::kSubpixelAntiAlias,
++                                                   SkFontHinting::kFull,
++                                                   false);
++
++      paragraph1->layout(600);
++      paragraph1->paint(canvas, 0, 0);
++      paragraph2->layout(600);
++      paragraph2->paint(canvas, 0, 40);
++      paragraph3->layout(600);
++      paragraph3->paint(canvas, 0, 80);
++  }
++
++
++private:
++    using INHERITED = Sample;
++};
++
++
+ }  // namespace
+ 
+ //////////////////////////////////////////////////////////////////////////////
+@@ -3781,3 +3844,4 @@
+ DEF_SAMPLE(return new ParagraphView63();)
+ DEF_SAMPLE(return new ParagraphView64();)
+ DEF_SAMPLE(return new ParagraphView65();)
++DEF_SAMPLE(return new ParagraphView66();)
+Index: modules/skparagraph/src/OneLineShaper.cpp
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/modules/skparagraph/src/OneLineShaper.cpp b/modules/skparagraph/src/OneLineShaper.cpp
+--- a/modules/skparagraph/src/OneLineShaper.cpp	(revision ddd300815ad78813053c005452a52270cced7397)
++++ b/modules/skparagraph/src/OneLineShaper.cpp	(revision 32db0210aff0ecd7d21b356e1fb0f6799a36b667)
+@@ -672,9 +672,10 @@
+ 
+                 // Create one more font to try
+                 SkFont font(std::move(typeface), block.fStyle.getFontSize());
+-                font.setEdging(SkFont::Edging::kAntiAlias);
+-                font.setHinting(SkFontHinting::kSlight);
+-                font.setSubpixel(true);
++                auto fontRastrSettings = fParagraph->fParagraphStyle.getFontRastrSettings();
++                font.setEdging(fontRastrSettings.fEdging);
++                font.setHinting(fontRastrSettings.fHinting);
++                font.setSubpixel(fontRastrSettings.fSubpixel);
+ 
+                 // Apply fake bold and/or italic settings to the font if the
+                 // typeface's attributes do not match the intended font style.
+Index: modules/skparagraph/src/ParagraphBuilderImpl.cpp
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/modules/skparagraph/src/ParagraphBuilderImpl.cpp b/modules/skparagraph/src/ParagraphBuilderImpl.cpp
+--- a/modules/skparagraph/src/ParagraphBuilderImpl.cpp	(revision ddd300815ad78813053c005452a52270cced7397)
++++ b/modules/skparagraph/src/ParagraphBuilderImpl.cpp	(revision 32db0210aff0ecd7d21b356e1fb0f6799a36b667)
+@@ -58,6 +58,7 @@
+ 
+ void ParagraphBuilderImpl::pushStyle(const TextStyle& style) {
+     fTextStyles.push_back(style);
++    fTextStyles.back().setFontRastrSettings(fParagraphStyle.getFontRastrSettings());
+     if (!fStyledBlocks.empty() && fStyledBlocks.back().fRange.end == fUtf8.size() &&
+         fStyledBlocks.back().fStyle == style) {
+         // Just continue with the same style
+Index: modules/skparagraph/src/TextStyle.cpp
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/modules/skparagraph/src/TextStyle.cpp b/modules/skparagraph/src/TextStyle.cpp
+--- a/modules/skparagraph/src/TextStyle.cpp	(revision ddd300815ad78813053c005452a52270cced7397)
++++ b/modules/skparagraph/src/TextStyle.cpp	(revision 32db0210aff0ecd7d21b356e1fb0f6799a36b667)
+@@ -166,9 +166,9 @@
+ 
+ void TextStyle::getFontMetrics(SkFontMetrics* metrics) const {
+     SkFont font(fTypeface, fFontSize);
+-    font.setEdging(SkFont::Edging::kAntiAlias);
+-    font.setSubpixel(true);
+-    font.setHinting(SkFontHinting::kSlight);
++    font.setEdging(fFontRastrSettings.fEdging);
++    font.setSubpixel(fFontRastrSettings.fSubpixel);
++    font.setHinting(fFontRastrSettings.fHinting);
+     font.getMetrics(metrics);
+     if (fHeightOverride) {
+         auto multiplier = fHeight * fFontSize;
