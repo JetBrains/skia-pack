@@ -44,10 +44,21 @@ def main():
   subprocess.check_call(["git", "-c", "advice.detachedHead=false", "checkout", commit])
 
   # Apply patches
+  patches = ["11081_SkLoadICU.cpp.patch",
+             "11132_SkParse.patch",
+             "11794_SkString.patch",
+             "12965_TextIndent.patch",
+             "13519_AtlasPathRenderer.patch",
+             "13646_Skip_activate-emsdk_for_arm_linux.patch",
+             "Fix_glyph_position_and_rects_for_chars_inside_ligatures.patch",
+             "13649_fix_assert_when_we're_getting_line_metrics.patch",
+             "10666_allow_to_configure_font_rasterisation_settings_in_paragraph.patch"]
+
   subprocess.check_call(["git", "reset", "--hard"])
-  for x in pathlib.Path(os.pardir, 'patches').glob('*.patch'):
-    print("> Applying", x)
-    subprocess.check_call(["git", "apply", str(x)])
+  for patch_name in patches:
+    patch = pathlib.Path(os.pardir, "patches", patch_name)
+    print("> Applying", patch)
+    subprocess.check_call(["git", "apply", str(patch)])
 
   # git deps
   print("> Running tools/git-sync-deps")
