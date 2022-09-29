@@ -52,7 +52,8 @@ def main():
              "13646_Skip_activate-emsdk_for_arm_linux.patch",
              "Fix_glyph_position_and_rects_for_chars_inside_ligatures.patch",
              "13649_fix_assert_when_we're_getting_line_metrics.patch",
-             "10666_allow_to_configure_font_rasterisation_settings_in_paragraph.patch"]
+             "10666_allow_to_configure_font_rasterisation_settings_in_paragraph.patch",
+             "Workaround_glyph_position_at_eol.patch"]
 
   subprocess.check_call(["git", "reset", "--hard"])
   for patch_name in patches:

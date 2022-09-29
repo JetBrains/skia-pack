@@ -1,0 +1,29 @@
+Index: modules/skparagraph/src/TextLine.cpp
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/modules/skparagraph/src/TextLine.cpp b/modules/skparagraph/src/TextLine.cpp
+--- a/modules/skparagraph/src/TextLine.cpp	(revision 305b7c02b90b248f000b2e48e8621368a22cf887)
++++ b/modules/skparagraph/src/TextLine.cpp	(date 1664452508330)
+@@ -1258,10 +1258,19 @@
+         return { SkToS32(utf16Index) , kDownstream };
+     }
+
++    auto lineTextRange = this->textWithNewlines();
+     PositionWithAffinity result(0, Affinity::kDownstream);
+     this->iterateThroughVisualRuns(true,
+-        [this, dx, &result]
++        [this, dx, &result, lineTextRange]
+         (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
++            auto intersection = lineTextRange.intersection(textRange);
++            if (textRange.width() == 2 && intersection == textRange && lineTextRange.end == textRange.end) {
++                auto text = fOwner->text(textRange);
++                if (text[0] == 13 && text[1] == 10) { // CR/LF
++                    SkASSERT(result.position != 0);
++                    return false; // stop looking, take the last saved `result`
++                }
++            }
+             bool keepLooking = true;
+             *runWidthInLine = this->iterateThroughSingleRunByStyles(
+             run, runOffsetInLine, textRange, StyleType::kNone,
