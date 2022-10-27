@@ -29,8 +29,8 @@ def main():
   else:
     print("> Cloning")
     subprocess.check_call(["git", "clone", "--config", "core.autocrlf=input", "https://github.com/JetBrains/skia.git", "--quiet"])
-    subprocess.check_call(["git", "fetch", "origin"])
     os.chdir("skia")
+    subprocess.check_call(["git", "fetch", "origin"])
 
   # Checkout commit
   print("> Checking out", commit)
