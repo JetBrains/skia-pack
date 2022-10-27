@@ -16,33 +16,25 @@ def main():
   match = re.match('(m\\d+)(?:-([0-9a-f]+)(?:-([1-9][0-9]*))?)?', args.version)
   if not match:
     raise Exception('Expected --version "m<ver>-<sha>", got "' + args.version + '"')
-  branch = "chrome/" + match.group(1)
+
   commit = match.group(2)
   iteration = match.group(3)
 
   if os.path.exists("skia"):
+    print("> Fetching")
     os.chdir("skia")
-    if subprocess.check_output(["git", "branch", "--list", branch]):
-      print("> Advancing", branch)
-      subprocess.check_call(["git", "checkout", "-B", branch])
-      subprocess.check_call(["git", "fetch"])
-      subprocess.check_call(["git", "reset", "--hard", "origin/" + branch])
-      subprocess.check_call(["git", "clean", "-d", "-f"])
-    else:
-      print("> Fetching", branch)
-      subprocess.check_call(["git", "reset", "--hard"])
-      subprocess.check_call(["git", "clean", "-d", "-f"])
-      subprocess.check_call(["git", "fetch", "origin", branch + ":remotes/origin/" + branch])
-      subprocess.check_call(["git", "checkout", branch])
+    subprocess.check_call(["git", "reset", "--hard"])
+    subprocess.check_call(["git", "clean", "-d", "-f"])
+    subprocess.check_call(["git", "fetch", "origin")
   else:
-    print("> Cloning", branch)
-    subprocess.check_call(["git", "clone", "--config", "core.autocrlf=input", "https://github.com/JetBrains/skia.git", "--quiet", "--branch", branch, "skiko"])
+    print("> Cloning")
+    subprocess.check_call(["git", "clone", "--config", "core.autocrlf=input", "https://github.com/JetBrains/skia.git", "--quiet"])
+    subprocess.check_call(["git", "fetch", "origin")
     os.chdir("skia")
 
   # Checkout commit
   print("> Checking out", commit)
   subprocess.check_call(["git", "-c", "advice.detachedHead=false", "checkout", commit])
-  subprocess.check_call(["git", "reset", "--hard"])
 
   # git deps
   print("> Running tools/git-sync-deps")
