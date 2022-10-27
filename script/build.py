@@ -30,22 +30,15 @@ def main():
     'skia_use_system_libwebp=false',
     'skia_use_system_zlib=false',
     'skia_use_sfntly=false',
-    'skia_use_freetype=true',
     'skia_use_system_freetype2=false',
-    # 'skia_use_harfbuzz=true',
     'skia_use_system_harfbuzz=false',
     'skia_pdf_subset_harfbuzz=true',
-    # 'skia_use_icu=true',
     'skia_use_system_icu=false',
-    # 'skia_enable_skshaper=true',
-    # 'skia_enable_svg=true',
     'skia_enable_skottie=true'
   ]
 
   if 'macos' == target or isIos:
     args += [
-      # 'skia_enable_gpu=true',
-      # 'skia_use_gl=true',
       'skia_use_metal=true',
       'extra_cflags_cc=["-frtti"]'
     ]
@@ -75,7 +68,6 @@ def main():
         ]
   elif 'windows' == target:
     args += [
-      # 'skia_use_angle=true',
       'skia_use_direct3d=true',
       'extra_cflags=["-DSK_FONT_HOST_USE_SYSTEM_SETTINGS"]',
     ]
