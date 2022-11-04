@@ -13,7 +13,7 @@ on:
         default: 'false'
 
 env:
-  version: m105-adda216f-1
+  version: m105-adda216f-2
 
 jobs:
   macos:
