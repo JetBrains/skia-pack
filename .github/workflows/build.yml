@@ -209,12 +209,13 @@ jobs:
     strategy:
       matrix:
         build_type: [Debug, Release]
+        machine: ["x64", "arm64"]
       fail-fast: false
     steps:
       - run: git config --global core.autocrlf input
       - uses: actions/checkout@v2
       - shell: bash
-        run: python3 script/check_release.py --version ${{ env.version }} --build-type ${{ matrix.build_type }}
+        run: python3 script/check_release.py --version ${{ env.version }} --build-type ${{ matrix.build_type }} --target windows --machine ${{ matrix.machine }}
         if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -223,16 +224,16 @@ jobs:
       - shell: bash
         run: python3 script/checkout.py --version ${{ env.version }}
       - shell: bash
-        run: python3 script/build.py --build-type ${{ matrix.build_type }}
+        run: python3 script/build.py --build-type ${{ matrix.build_type }} --target windows --machine ${{ matrix.machine }}
       - shell: bash
-        run: python3 script/archive.py --version ${{ env.version }} --build-type ${{ matrix.build_type }}
+        run: python3 script/archive.py --version ${{ env.version }} --build-type ${{ matrix.build_type }} --target windows --machine ${{ matrix.machine }}
       - uses: actions/upload-artifact@v2
         if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
         with:
-          name: Skia-${{ env.version }}-windows-${{ matrix.build_type }}-x64.zip
+          name: Skia-${{ env.version }}-windows-${{ matrix.build_type }}-${{ matrix.machine }}.zip
           path: '*.zip'
       - shell: bash
-        run: python3 script/release.py --version ${{ env.version }} --build-type ${{ matrix.build_type }}
+        run: python3 script/release.py --version ${{ env.version }} --build-type ${{ matrix.build_type }} --target windows --machine ${{ matrix.machine }}
         if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
