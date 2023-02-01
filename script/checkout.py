@@ -45,6 +45,10 @@ def main():
   else:
     subprocess.check_call(["python3", "tools/git-sync-deps"])
 
+  # fetch ninja
+  print("> Fetching ninja")
+  subprocess.check_call(["bin/fetch-ninja"])
+
   return 0
 
 if __name__ == '__main__':
