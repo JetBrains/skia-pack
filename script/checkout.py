@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-import argparse, common, os, pathlib, platform, re, subprocess, sys
+import common, os, re, subprocess, sys
 
 def main():
   os.chdir(os.path.join(os.path.dirname(__file__), os.pardir))
@@ -47,7 +47,7 @@ def main():
 
   # fetch ninja
   print("> Fetching ninja")
-  subprocess.check_call(["bin/fetch-ninja"])
+  subprocess.check_call(["python3", "bin/fetch-ninja"])
 
   return 0
 

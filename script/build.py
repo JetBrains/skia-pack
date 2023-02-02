@@ -13,7 +13,7 @@ def main():
   ndk = common.ndk()
 
   tools_dir = "depot_tools"
-  ninja = 'ninja.exe' if 'windows' == host else 'ninja'
+  ninja = 'ninja.bat' if 'windows' == host else 'ninja'
   isIos = 'ios' == target or 'iosSim' == target
   isIosSim = 'iosSim' == target
 
