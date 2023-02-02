@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-import argparse, common, os, pathlib, platform, re, subprocess, sys
+import common, os, re, subprocess, sys
 
 def main():
   os.chdir(os.path.join(os.path.dirname(__file__), os.pardir))
@@ -44,6 +44,10 @@ def main():
     subprocess.check_call(["python3", "tools/git-sync-deps"], env=env)
   else:
     subprocess.check_call(["python3", "tools/git-sync-deps"])
+
+  # fetch ninja
+  print("> Fetching ninja")
+  subprocess.check_call(["python3", "bin/fetch-ninja"])
 
   return 0
 
