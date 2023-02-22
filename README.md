@@ -15,15 +15,15 @@ Prebuilt binaries can be found [in releases](https://github.com/JetBrains/skia-p
 ## Building locally
 
 ```sh
-python3 script/checkout.py --version m110-de56cc1
+python3 script/checkout.py --version m110-ad42464
 python3 script/build.py
-python3 script/archive.py
+python3 script/archive.py --version m110-ad42464
 ```
 
 To build a debug build:
 
 ```sh
-python3 script/checkout.py --version m110-de56cc1
+python3 script/checkout.py --version m110-ad42464
 python3 script/build.py --build-type Debug
-python3 script/archive.py --build-type Debug
+python3 script/archive.py --version m110-ad42464 --build-type Debug
 ```
