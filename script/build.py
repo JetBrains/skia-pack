@@ -44,9 +44,10 @@ def main():
     ]
     if isIos:
       args += ['target_os="ios"']
-      args += ['ios_min_target="11.0"']
       if isIosSim:
         args += ['ios_use_simulator=true']
+      else:
+        args += ['ios_min_target="11.0"']
     else:
       if 'arm64' == machine:
         args += ['extra_cflags=["-stdlib=libc++"]']
