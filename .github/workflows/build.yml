@@ -20,9 +20,12 @@ jobs:
     runs-on: macos-11
     strategy:
       matrix:
-        target: ["macos", "ios", "iosSim"]
+        target: ["macos", "ios", "iosSim", "tvos", "tvosSim"]
         machine: ["x64", "arm64"]
         build_type: [Release, Debug]
+        exclude:
+          - target: tvos
+            machine: x64
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
