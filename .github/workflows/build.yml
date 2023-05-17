@@ -13,11 +13,11 @@ on:
         default: 'false'
 
 env:
-  version: m110-ad42464-1
+  version: m110-d88a7b5
 
 jobs:
   macos:
-    runs-on: macos-11
+    runs-on: macos-13
     strategy:
       matrix:
         target: ["macos", "ios", "iosSim", "tvos", "tvosSim"]
