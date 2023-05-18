@@ -55,7 +55,7 @@ jobs:
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
-      - run: sudo ./script/prepare_linux.sh
+      - run: ./script/prepare_linux.sh
       - run: python3 script/check_release.py --version ${{ env.version }} --build-type ${{ matrix.build_type }} --classifier ubuntu18
         if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
         env:
@@ -109,7 +109,7 @@ jobs:
         machine: ["x64", "arm64"]
       fail-fast: false
     steps:
-      - run: sudo apt-get install unzip -y
+      - run: apt-get install unzip -y
       - uses: actions/checkout@v2
       - run: python3 script/check_release.py --version ${{ env.version }} --target android --build-type ${{ matrix.build_type }} --machine ${{ matrix.machine }}
         if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
