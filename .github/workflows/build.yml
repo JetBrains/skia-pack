@@ -132,7 +132,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  linux-arm64-2004:
+  linux-arm64:
     runs-on: ubuntu-latest
     strategy:
       matrix:
