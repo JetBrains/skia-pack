@@ -134,7 +134,6 @@ jobs:
 
   linux-arm64-2004:
     runs-on: ubuntu-latest
-    container: ubuntu:20.04
     strategy:
       matrix:
         build_type: [ Debug, Release ]
@@ -177,6 +176,7 @@ jobs:
         with:
             arch: aarch64
             distro: ubuntu20.04
+            githubToken: ${{ secrets.GITHUB_TOKEN }}
             # Mount checkout directory as /checkout in the container
             dockerRunArgs: |
               --volume "${GITHUB_WORKSPACE}:/checkout"
