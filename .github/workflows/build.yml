@@ -109,8 +109,8 @@ jobs:
         machine: ["x64", "arm64"]
       fail-fast: false
     steps:
-      - run: apt-get update -y && apt-get install unzip -y
       - uses: actions/checkout@v2
+      - run: ./script/prepare_linux.sh
       - run: python3 script/check_release.py --version ${{ env.version }} --target android --build-type ${{ matrix.build_type }} --machine ${{ matrix.machine }}
         if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
         env:
