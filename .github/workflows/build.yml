@@ -142,8 +142,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: uraimo/run-on-arch-action@v2.0.5
-        name: Run commands
-        id: runcmd
+        name: Assemble
+        id: assemble
         if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
         with:
             arch: aarch64
@@ -170,6 +170,31 @@ jobs:
               python3 script/build.py --build-type ${build_type} --build-type ${build_type}
               python3 script/archive.py --version ${build_version} --build-type ${build_type}
               echo "Produced artifact at ${PWD}/${artifact_name}"
+      - uses: uraimo/run-on-arch-action@v2.0.5
+        name: Test Build
+        id: test-build
+        if: ${{ github.event.inputs.skip_release == 'true' || github.ref != 'refs/heads/main' }}
+        with:
+            arch: aarch64
+            distro: ubuntu20.04
+            # Mount checkout directory as /checkout in the container
+            dockerRunArgs: |
+              --volume "${GITHUB_WORKSPACE}:/checkout"
+            env: |
+              build_type: ${{ matrix.build_type }}
+              build_version: ${{ env.version }}
+              artifact_name: Skia-${{ env.version }}-linux-${{ matrix.build_type }}-arm64.zip
+            # The shell to run commands with in the container
+            shell: /bin/bash
+            install: |
+              apt-get update -q -y
+              apt-get install -q -y bash
+            run: |
+              cd /checkout
+              /bin/bash script/prepare_linux_arm.sh
+              python3 script/checkout.py --version ${build_version}
+              python3 script/build.py --build-type ${build_type} --build-type ${build_type}
+              echo "Verified build"
       - uses: actions/upload-artifact@v2
         if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
         with:
