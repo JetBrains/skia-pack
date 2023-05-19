@@ -17,7 +17,7 @@ env:
 
 jobs:
   macos:
-    runs-on: macos-13
+    runs-on: macos-11
     strategy:
       matrix:
         target: ["macos", "ios", "iosSim", "tvos", "tvosSim"]
