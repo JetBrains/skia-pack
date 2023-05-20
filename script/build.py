@@ -15,7 +15,9 @@ def main():
   tools_dir = "depot_tools"
   ninja = 'ninja.bat' if 'windows' == host else 'ninja'
   isIos = 'ios' == target or 'iosSim' == target
+  isTvos = 'tvos' == target or 'tvosSim' == target
   isIosSim = 'iosSim' == target
+  isTvosSim = 'tvosSim' == target
 
   if build_type == 'Debug':
     args = ['is_debug=true']
@@ -37,11 +39,9 @@ def main():
     'skia_enable_skottie=true'
   ]
 
-  if 'macos' == target or isIos:
-    args += [
-      'skia_use_metal=true',
-      'extra_cflags_cc=["-frtti"]'
-    ]
+  if 'macos' == target or isIos or isTvos:
+    args += ['extra_cflags_cc=["-frtti"]']
+    args += ['skia_use_metal=true']
     if isIos:
       args += ['target_os="ios"']
       if isIosSim:
@@ -49,10 +49,19 @@ def main():
       else:
         args += ['ios_min_target="11.0"']
     else:
-      if 'arm64' == machine:
-        args += ['extra_cflags=["-stdlib=libc++"]']
+      if isTvos:
+        args += ['target_os="tvos"']
+        # Metal needs tvOS version 14 and SK_BUILD_FOR_TVOS to skip legacy iOS checks
+        if isTvosSim:
+          args += ['ios_use_simulator=true']
+          args += ['extra_cflags=["-mtvos-simulator-version-min=14", "-DSK_BUILD_FOR_TVOS"]']
+        else:
+          args += ['extra_cflags=["-mtvos-version-min=14", "-DSK_BUILD_FOR_TVOS"]'] 
       else:
-        args += ['extra_cflags=["-stdlib=libc++", "-mmacosx-version-min=10.13"]']
+        if 'arm64' == machine:
+          args += ['extra_cflags=["-stdlib=libc++"]']
+        else:
+          args += ['extra_cflags=["-stdlib=libc++", "-mmacosx-version-min=10.13"]']
   elif 'linux' == target:
     if 'arm64' == machine:
         # TODO: use clang on all targets!

@@ -13,16 +13,19 @@ on:
         default: 'false'
 
 env:
-  version: m110-ad42464-1
+  version: m110-d88a7b5
 
 jobs:
   macos:
-    runs-on: macos-11
+    runs-on: ${{ fromJson('{"macos":"macos-11","ios":"macos-11","iosSim":"macos-11","tvos":"macos-13","tvosSim":"macos-13"}')[matrix.target] }}
     strategy:
       matrix:
-        target: ["macos", "ios", "iosSim"]
+        target: ["macos", "ios", "iosSim", "tvos", "tvosSim"]
         machine: ["x64", "arm64"]
         build_type: [Release, Debug]
+        exclude:
+          - target: tvos
+            machine: x64
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
@@ -43,28 +46,29 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  linux-ubuntu18:
-    runs-on: ubuntu-18.04
+  linux:
+    runs-on: ubuntu-latest
+    container: ubuntu:20.04
     strategy:
       matrix:
         build_type: [Debug, Release]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
-      - run: sudo ./script/prepare_linux.sh
-      - run: python3 script/check_release.py --version ${{ env.version }} --build-type ${{ matrix.build_type }} --classifier ubuntu18
+      - run: ./script/prepare_linux.sh
+      - run: python3 script/check_release.py --version ${{ env.version }} --build-type ${{ matrix.build_type }} 
         if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: PATH=/usr/lib/binutils-2.26/bin:$PATH python3 script/checkout.py --version ${{ env.version }}
       - run: PATH=/usr/lib/binutils-2.26/bin:$PATH python3 script/build.py --build-type ${{ matrix.build_type }}
-      - run: PATH=/usr/lib/binutils-2.26/bin:$PATH python3 script/archive.py --version ${{ env.version }} --build-type ${{ matrix.build_type }} --classifier ubuntu18
+      - run: PATH=/usr/lib/binutils-2.26/bin:$PATH python3 script/archive.py --version ${{ env.version }} --build-type ${{ matrix.build_type }}
       - uses: actions/upload-artifact@v2
         if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
         with:
-          name: Skia-${{ env.version }}-linux-${{ matrix.build_type }}-x64-ubuntu18.zip
+          name: Skia-${{ env.version }}-linux-${{ matrix.build_type }}-x64.zip
           path: '*.zip'
-      - run: python3 script/release.py --version ${{ env.version }} --build-type ${{ matrix.build_type }} --classifier ubuntu18
+      - run: python3 script/release.py --version ${{ env.version }} --build-type ${{ matrix.build_type }}
         if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -97,15 +101,16 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   linux-android:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
+    container: ubuntu:20.04
     strategy:
       matrix:
         build_type: [ Debug, Release ]
         machine: ["x64", "arm64"]
       fail-fast: false
     steps:
-      - run: sudo apt-get install unzip -y
       - uses: actions/checkout@v2
+      - run: ./script/prepare_linux.sh
       - run: python3 script/check_release.py --version ${{ env.version }} --target android --build-type ${{ matrix.build_type }} --machine ${{ matrix.machine }}
         if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
         env:
@@ -127,8 +132,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  linux-arm64-2004:
-    runs-on: ubuntu-18.04
+  linux-arm64:
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         build_type: [ Debug, Release ]
@@ -136,8 +141,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: uraimo/run-on-arch-action@v2.0.5
-        name: Run commands
-        id: runcmd
+        name: Assemble
+        id: assemble
         if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
         with:
             arch: aarch64
@@ -164,6 +169,32 @@ jobs:
               python3 script/build.py --build-type ${build_type} --build-type ${build_type}
               python3 script/archive.py --version ${build_version} --build-type ${build_type}
               echo "Produced artifact at ${PWD}/${artifact_name}"
+      - uses: uraimo/run-on-arch-action@v2.0.5
+        name: Test Build
+        id: test-build
+        if: ${{ github.event.inputs.skip_release == 'true' || github.ref != 'refs/heads/main' }}
+        with:
+            arch: aarch64
+            distro: ubuntu20.04
+            githubToken: ${{ secrets.GITHUB_TOKEN }}
+            # Mount checkout directory as /checkout in the container
+            dockerRunArgs: |
+              --volume "${GITHUB_WORKSPACE}:/checkout"
+            env: |
+              build_type: ${{ matrix.build_type }}
+              build_version: ${{ env.version }}
+              artifact_name: Skia-${{ env.version }}-linux-${{ matrix.build_type }}-arm64.zip
+            # The shell to run commands with in the container
+            shell: /bin/bash
+            install: |
+              apt-get update -q -y
+              apt-get install -q -y bash
+            run: |
+              cd /checkout
+              /bin/bash script/prepare_linux_arm.sh
+              python3 script/checkout.py --version ${build_version}
+              python3 script/build.py --build-type ${build_type} --build-type ${build_type}
+              echo "Verified build"
       - uses: actions/upload-artifact@v2
         if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
         with:
