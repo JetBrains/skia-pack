@@ -1,3 +1,4 @@
+[![internal JetBrains project](https://jb.gg/badges/internal.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
 # Automated Skia builds
 
 This repo is dedicated to building Skia binaries for use in [Skiko](https://github.com/JetBrains/skiko).
