@@ -13,10 +13,11 @@ on:
         default: 'false'
 
 env:
-  version: m116-b54492e-2
+  version: m116-b54492e-3
 
 jobs:
   macos:
+    if: false
     runs-on: ${{ fromJson('{"macos":"macos-11","ios":"macos-11","iosSim":"macos-11","tvos":"macos-13","tvosSim":"macos-13"}')[matrix.target] }}
     strategy:
       matrix:
@@ -47,6 +48,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   linux:
+    if: false
     runs-on: ubuntu-latest
     container: ubuntu:20.04
     strategy:
@@ -74,6 +76,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   linux-wasm:
+    if: false
     runs-on: ubuntu-latest
     container: ubuntu:20.04
     strategy:
@@ -101,6 +104,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   linux-android:
+    if: false
     runs-on: ubuntu-latest
     container: ubuntu:20.04
     strategy:
@@ -133,6 +137,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   linux-arm64:
+    if: false
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -217,6 +222,9 @@ jobs:
     steps:
       - run: git config --global core.autocrlf input
       - uses: actions/checkout@v2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
       - shell: bash
         run: python3 script/check_release.py --version ${{ env.version }} --build-type ${{ matrix.build_type }} --target windows --machine ${{ matrix.machine }}
         if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
