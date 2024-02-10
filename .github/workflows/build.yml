@@ -17,7 +17,6 @@ env:
 
 jobs:
   macos:
-    if: false
     runs-on: ${{ fromJson('{"macos":"macos-11","ios":"macos-11","iosSim":"macos-11","tvos":"macos-13","tvosSim":"macos-13"}')[matrix.target] }}
     strategy:
       matrix:
@@ -48,7 +47,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   linux:
-    if: false
     runs-on: ubuntu-latest
     container: ubuntu:20.04
     strategy:
@@ -76,7 +74,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   linux-wasm:
-    if: false
     runs-on: ubuntu-latest
     container: ubuntu:20.04
     strategy:
@@ -104,7 +101,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   linux-android:
-    if: false
     runs-on: ubuntu-latest
     container: ubuntu:20.04
     strategy:
@@ -137,7 +133,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   linux-arm64:
-    if: false
     runs-on: ubuntu-latest
     strategy:
       matrix:
