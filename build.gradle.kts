@@ -35,11 +35,11 @@ val downloadSkiaAsArchive = tasks.register<Download>("skiaDownloadAsArchive") {
     onlyIfModified(true)
     overwrite(false)
     src("${project.properties["skia.repo"]}/archive/${changeset}.zip")
-    dest(skiaArchivePath())
+    dest("${skiaArchivePath()}/${skiaArchiveName(changeset)}.zip")
 }
 
 val unarchiveSkia = tasks.register<Copy>("skiaUnarchive") {
-    val source = Paths.get(downloadSkiaAsArchive.get().dest.absolutePath, skiaArchiveName(changeset) + ".zip")
+    val source = Paths.get(downloadSkiaAsArchive.get().dest.absolutePath)
     inputs.file(source)
 
     val outDir = skiaUnzippedPath()
