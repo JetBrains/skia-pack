@@ -2,3 +2,7 @@
 /depot_tools
 *.zip
 __pycache__
+
+# gradle
+.gradle
+build

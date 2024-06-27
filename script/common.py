@@ -11,6 +11,7 @@ def create_parser(version_required=False):
   parser.add_argument('--machine')
   parser.add_argument('--ndk')
   parser.add_argument('--target')
+  parser.add_argument("--skia")
   return parser
 
 def host():
@@ -20,6 +21,12 @@ def host():
 
 def host_machine():
   return {'AMD64': 'x64', 'x86_64': 'x64', 'arm64': 'arm64', 'aarch64': 'arm64'}[platform.machine()]
+
+def skiaRepo():
+  parser = create_parser()
+  (args, _) = parser.parse_known_args()
+  return args.skia
+
 
 def machine():
   parser = create_parser()

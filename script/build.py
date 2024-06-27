@@ -3,7 +3,11 @@
 import common, os, subprocess, sys
 
 def main():
-  os.chdir(os.path.join(os.path.dirname(__file__), os.pardir, 'skia'))
+
+  skia = common.skiaRepo() or os.path.join(os.path.dirname(__file__), os.pardir, 'skia')
+
+  print("building from ", skia)
+  os.chdir(skia)
 
   build_type = common.build_type()
   machine = common.machine()
@@ -122,15 +126,19 @@ def main():
         'extra_cflags=["-DSK_SUPPORT_GPU=1", "-DSK_GL", "-DSK_DISABLE_LEGACY_SHADERCONTEXT"]'
     ]
 
+  ninja_path = os.path.join("third_party", "ninja", "ninja")
   if 'linux' == host and 'arm64' == host_machine:
-    tools_dir = 'tools'
-    ninja = 'ninja-linux-arm64'
+    ninja_path = os.path.join('..', 'tools', 'ninja-linux-arm64')
+
+  ninja_path = os.path.abspath(ninja_path)
+  print("building with", ninja_path)
 
   out = os.path.join('out', build_type + '-' + target + '-' + machine)
   gn = 'gn.exe' if 'windows' == host else 'gn'
   print([os.path.join('bin', gn), 'gen', out, '--args=' + ' '.join(args)])
   subprocess.check_call([os.path.join('bin', gn), 'gen', out, '--args=' + ' '.join(args)])
-  subprocess.check_call([os.path.join('..', tools_dir, ninja), '-C', out, 'skia', 'modules'])
+#   subprocess.check_call([os.path.join('..', tools_dir, ninja), '-C', out, 'skia', 'modules'])
+  subprocess.check_call([ninja_path, '-C', out, 'skia', 'modules'])
 
   return 0
 
