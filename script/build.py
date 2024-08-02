@@ -112,7 +112,7 @@ def main():
         'skia_enable_tools=false',
         'skia_enable_fontmgr_custom_directory=false',
         'skia_enable_fontmgr_custom_embedded=true',
-        'skia_enable_fontmgr_custom_empty=false',
+        'skia_enable_fontmgr_custom_empty=true',
         'skia_use_webgl=true',
         'skia_gl_standard="webgl"',
         'skia_use_gl=true',
