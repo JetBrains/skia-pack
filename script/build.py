@@ -18,6 +18,7 @@ def main():
   isTvos = 'tvos' == target or 'tvosSim' == target
   isIosSim = 'iosSim' == target
   isTvosSim = 'tvosSim' == target
+  isMacos = 'macos' == target
 
   if build_type == 'Debug':
     args = ['is_debug=true']
@@ -39,7 +40,9 @@ def main():
     'skia_enable_skottie=true'
   ]
 
-  if 'macos' == target or isIos or isTvos:
+  if isMacos or isIos or isTvos:
+    if isMacos:
+        args += ['skia_use_fonthost_mac=true']
     args += ['extra_cflags_cc=["-frtti"]']
     args += ['skia_use_metal=true']
     if isIos:
