@@ -1,0 +1,18 @@
+diff --git a/modules/skparagraph/src/OneLineShaper.cpp b/modules/skparagraph/src/OneLineShaper.cpp
+index e5259496cc6db1d5bd03226e6b867de8f7590d62..ae5564cde0b0b3e3a50de81fde1b88eda99d8b50 100644
+--- a/modules/skparagraph/src/OneLineShaper.cpp
++++ b/modules/skparagraph/src/OneLineShaper.cpp
+@@ -672,7 +672,13 @@ bool OneLineShaper::shape() {
+ 
+                 // Create one more font to try
+                 SkFont font(std::move(typeface), block.fStyle.getFontSize());
++
++                #ifdef SK_BUILD_FOR_WIN
++                font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
++                #elif
+                 font.setEdging(SkFont::Edging::kAntiAlias);
++                #endif
++
+                 font.setHinting(SkFontHinting::kSlight);
+                 font.setSubpixel(true);
+ 
