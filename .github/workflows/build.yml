@@ -34,8 +34,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Select Xcode 13.1 for iOS targets
+        if: ${{ matrix.target == 'ios' || matrix.target == 'iosSim' }}
         run: sudo xcode-select -s /Applications/Xcode_13.1.app
-        if: ${{ matrix.target }} == 'ios' || ${{ matrix.target }} == 'iosSim'
       - name: Print Xcode version
         run: xcodebuild -version
       - run: python3 script/checkout.py --version ${{ env.version }}
