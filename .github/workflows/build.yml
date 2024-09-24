@@ -13,14 +13,14 @@ on:
         default: 'false'
 
 env:
-  version: m126-d2aaacc35d-2
+  version: m126-d2aaacc35d-3
 
 jobs:
   macos:
-    runs-on: ${{ fromJson('{"macos":"macos-13","ios":"macos-13","iosSim":"macos-13","tvos":"macos-13","tvosSim":"macos-13"}')[matrix.target] }}
+    runs-on: ${{ fromJson('{"macos":"macos-13","ios":"macos-13","iosSim":"macos-12","tvos":"macos-13","tvosSim":"macos-13"}')[matrix.target] }}
     strategy:
       matrix:
-        target: ["macos", "ios", "iosSim", "tvos", "tvosSim"]
+        target: ["iosSim"]
         machine: ["x64", "arm64"]
         build_type: [Release, Debug]
         exclude:
@@ -33,8 +33,8 @@ jobs:
         if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Select Xcode 14.3.1 for iOS targets
-        run: sudo xcode-select -s /Applications/Xcode_14.3.1.app
+      - name: Select Xcode 13.1 for iOS targets
+        run: sudo xcode-select -s /Applications/Xcode_13.1.app
         if: ${{ matrix.target }} == 'ios' || ${{ matrix.target }} == 'iosSim'
       - name: Print Xcode version
         run: xcodebuild -version
@@ -47,204 +47,204 @@ jobs:
           name: Skia-${{ env.version }}-${{ matrix.target }}-${{ matrix.build_type }}-${{ matrix.machine }}.zip
           path: '*.zip'
       - run: python3 script/release.py --version ${{ env.version }} --build-type ${{ matrix.build_type }} --target ${{ matrix.target }} --machine ${{ matrix.machine }}
-        if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
+        if: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  linux:
-    runs-on: ubuntu-latest
-    container: ubuntu:20.04
-    strategy:
-      matrix:
-        build_type: [Debug, Release]
-      fail-fast: false
-    steps:
-      - uses: actions/checkout@v2
-      - run: ./script/prepare_linux.sh
-      - run: python3 script/check_release.py --version ${{ env.version }} --build-type ${{ matrix.build_type }} 
-        if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: PATH=/usr/lib/binutils-2.26/bin:$PATH python3 script/checkout.py --version ${{ env.version }}
-      - run: PATH=/usr/lib/binutils-2.26/bin:$PATH python3 script/build.py --build-type ${{ matrix.build_type }}
-      - run: PATH=/usr/lib/binutils-2.26/bin:$PATH python3 script/archive.py --version ${{ env.version }} --build-type ${{ matrix.build_type }}
-      - uses: actions/upload-artifact@v3
-        if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
-        with:
-          name: Skia-${{ env.version }}-linux-${{ matrix.build_type }}-x64.zip
-          path: '*.zip'
-      - run: python3 script/release.py --version ${{ env.version }} --build-type ${{ matrix.build_type }}
-        if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#  linux:
+#    runs-on: ubuntu-latest
+#    container: ubuntu:20.04
+#    strategy:
+#      matrix:
+#        build_type: [Debug, Release]
+#      fail-fast: false
+#    steps:
+#      - uses: actions/checkout@v2
+#      - run: ./script/prepare_linux.sh
+#      - run: python3 script/check_release.py --version ${{ env.version }} --build-type ${{ matrix.build_type }}
+#        if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      - run: PATH=/usr/lib/binutils-2.26/bin:$PATH python3 script/checkout.py --version ${{ env.version }}
+#      - run: PATH=/usr/lib/binutils-2.26/bin:$PATH python3 script/build.py --build-type ${{ matrix.build_type }}
+#      - run: PATH=/usr/lib/binutils-2.26/bin:$PATH python3 script/archive.py --version ${{ env.version }} --build-type ${{ matrix.build_type }}
+#      - uses: actions/upload-artifact@v3
+#        if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
+#        with:
+#          name: Skia-${{ env.version }}-linux-${{ matrix.build_type }}-x64.zip
+#          path: '*.zip'
+#      - run: python3 script/release.py --version ${{ env.version }} --build-type ${{ matrix.build_type }}
+#        if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  linux-wasm:
-    runs-on: ubuntu-latest
-    container: ubuntu:20.04
-    strategy:
-      matrix:
-        build_type: [ Debug, Release ]
-      fail-fast: false
-    steps:
-      - uses: actions/checkout@v2
-      - run: ./script/prepare_linux_wasm.sh
-      - run: python3 script/check_release.py --version ${{ env.version }} --target wasm --build-type ${{ matrix.build_type }} --machine wasm
-        if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: python3 script/checkout.py --version ${{ env.version }}
-      - run: python3 script/build.py --target wasm --machine wasm --build-type ${{ matrix.build_type }}
-      - run: python3 script/archive.py --version ${{ env.version }} --target wasm --machine wasm --build-type ${{ matrix.build_type }}
-      - uses: actions/upload-artifact@v3
-        if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
-        with:
-          name: Skia-${{ env.version }}-wasm-${{ matrix.build_type }}-wasm.zip
-          path: '*.zip'
-      - run: python3 script/release.py --version ${{ env.version }} --target wasm --machine wasm --build-type ${{ matrix.build_type }}
-        if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#  linux-wasm:
+#    runs-on: ubuntu-latest
+#    container: ubuntu:20.04
+#    strategy:
+#      matrix:
+#        build_type: [ Debug, Release ]
+#      fail-fast: false
+#    steps:
+#      - uses: actions/checkout@v2
+#      - run: ./script/prepare_linux_wasm.sh
+#      - run: python3 script/check_release.py --version ${{ env.version }} --target wasm --build-type ${{ matrix.build_type }} --machine wasm
+#        if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      - run: python3 script/checkout.py --version ${{ env.version }}
+#      - run: python3 script/build.py --target wasm --machine wasm --build-type ${{ matrix.build_type }}
+#      - run: python3 script/archive.py --version ${{ env.version }} --target wasm --machine wasm --build-type ${{ matrix.build_type }}
+#      - uses: actions/upload-artifact@v3
+#        if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
+#        with:
+#          name: Skia-${{ env.version }}-wasm-${{ matrix.build_type }}-wasm.zip
+#          path: '*.zip'
+#      - run: python3 script/release.py --version ${{ env.version }} --target wasm --machine wasm --build-type ${{ matrix.build_type }}
+#        if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  linux-android:
-    runs-on: ubuntu-latest
-    container: ubuntu:20.04
-    strategy:
-      matrix:
-        build_type: [ Debug, Release ]
-        machine: ["x64", "arm64"]
-      fail-fast: false
-    steps:
-      - uses: actions/checkout@v2
-      - run: ./script/prepare_linux.sh
-      - run: python3 script/check_release.py --version ${{ env.version }} --target android --build-type ${{ matrix.build_type }} --machine ${{ matrix.machine }}
-        if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: python3 script/checkout.py --version ${{ env.version }}
-      - uses: nttld/setup-ndk@v1
-        id: setup-ndk
-        with:
-          ndk-version: r25c
-      - run: python3 script/build.py --target android --build-type ${{ matrix.build_type }} --machine ${{ matrix.machine }} --ndk ${{ steps.setup-ndk.outputs.ndk-path }}
-      - run: python3 script/archive.py --version ${{ env.version }} --target android --build-type ${{ matrix.build_type }} --machine ${{ matrix.machine }}
-      - uses: actions/upload-artifact@v3
-        if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
-        with:
-          name: Skia-${{ env.version }}-android-${{ matrix.build_type }}-${{ matrix.machine }}.zip
-          path: '*.zip'
-      - run: python3 script/release.py --version ${{ env.version }} --target android --build-type ${{ matrix.build_type }} --machine ${{ matrix.machine }}
-        if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#  linux-android:
+#    runs-on: ubuntu-latest
+#    container: ubuntu:20.04
+#    strategy:
+#      matrix:
+#        build_type: [ Debug, Release ]
+#        machine: ["x64", "arm64"]
+#      fail-fast: false
+#    steps:
+#      - uses: actions/checkout@v2
+#      - run: ./script/prepare_linux.sh
+#      - run: python3 script/check_release.py --version ${{ env.version }} --target android --build-type ${{ matrix.build_type }} --machine ${{ matrix.machine }}
+#        if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      - run: python3 script/checkout.py --version ${{ env.version }}
+#      - uses: nttld/setup-ndk@v1
+#        id: setup-ndk
+#        with:
+#          ndk-version: r25c
+#      - run: python3 script/build.py --target android --build-type ${{ matrix.build_type }} --machine ${{ matrix.machine }} --ndk ${{ steps.setup-ndk.outputs.ndk-path }}
+#      - run: python3 script/archive.py --version ${{ env.version }} --target android --build-type ${{ matrix.build_type }} --machine ${{ matrix.machine }}
+#      - uses: actions/upload-artifact@v3
+#        if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
+#        with:
+#          name: Skia-${{ env.version }}-android-${{ matrix.build_type }}-${{ matrix.machine }}.zip
+#          path: '*.zip'
+#      - run: python3 script/release.py --version ${{ env.version }} --target android --build-type ${{ matrix.build_type }} --machine ${{ matrix.machine }}
+#        if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  linux-arm64:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        build_type: [ Debug, Release ]
-      fail-fast: false
-    steps:
-      - uses: actions/checkout@v2
-      - uses: uraimo/run-on-arch-action@v2.0.5
-        name: Assemble
-        id: assemble
-        if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
-        with:
-            arch: aarch64
-            distro: ubuntu20.04
-            githubToken: ${{ secrets.GITHUB_TOKEN }}
-            # Mount checkout directory as /checkout in the container
-            dockerRunArgs: |
-              --volume "${GITHUB_WORKSPACE}:/checkout"
-            env: |
-              build_type: ${{ matrix.build_type }}
-              build_version: ${{ env.version }}
-              artifact_name: Skia-${{ env.version }}-linux-${{ matrix.build_type }}-arm64.zip
-              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            # The shell to run commands with in the container
-            shell: /bin/bash
-            install: |
-              apt-get update -q -y
-              apt-get install -q -y bash
-            run: |
-              cd /checkout
-              /bin/bash script/prepare_linux_arm.sh
-              python3 script/check_release.py --version ${build_version} --build-type ${build_type}
-              python3 script/checkout.py --version ${build_version}
-              python3 script/build.py --build-type ${build_type} --build-type ${build_type}
-              python3 script/archive.py --version ${build_version} --build-type ${build_type}
-              echo "Produced artifact at ${PWD}/${artifact_name}"
-      - uses: uraimo/run-on-arch-action@v2.0.5
-        name: Test Build
-        id: test-build
-        if: ${{ github.event.inputs.skip_release == 'true' || github.ref != 'refs/heads/main' }}
-        with:
-            arch: aarch64
-            distro: ubuntu20.04
-            githubToken: ${{ secrets.GITHUB_TOKEN }}
-            # Mount checkout directory as /checkout in the container
-            dockerRunArgs: |
-              --volume "${GITHUB_WORKSPACE}:/checkout"
-            env: |
-              build_type: ${{ matrix.build_type }}
-              build_version: ${{ env.version }}
-              artifact_name: Skia-${{ env.version }}-linux-${{ matrix.build_type }}-arm64.zip
-            # The shell to run commands with in the container
-            shell: /bin/bash
-            install: |
-              apt-get update -q -y
-              apt-get install -q -y bash
-            run: |
-              cd /checkout
-              /bin/bash script/prepare_linux_arm.sh
-              python3 script/checkout.py --version ${build_version}
-              python3 script/build.py --build-type ${build_type} --build-type ${build_type}
-              echo "Verified build"
-      - uses: actions/upload-artifact@v3
-        if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
-        with:
-            name: Skia-${{ env.version }}-linux-${{ matrix.build_type }}-arm64.zip
-            path: '*.zip'
-        env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: python3 script/release.py --version ${{ env.version }} --build-type ${{ matrix.build_type }} --target linux --machine arm64
-        if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#  linux-arm64:
+#    runs-on: ubuntu-latest
+#    strategy:
+#      matrix:
+#        build_type: [ Debug, Release ]
+#      fail-fast: false
+#    steps:
+#      - uses: actions/checkout@v2
+#      - uses: uraimo/run-on-arch-action@v2.0.5
+#        name: Assemble
+#        id: assemble
+#        if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
+#        with:
+#            arch: aarch64
+#            distro: ubuntu20.04
+#            githubToken: ${{ secrets.GITHUB_TOKEN }}
+#            # Mount checkout directory as /checkout in the container
+#            dockerRunArgs: |
+#              --volume "${GITHUB_WORKSPACE}:/checkout"
+#            env: |
+#              build_type: ${{ matrix.build_type }}
+#              build_version: ${{ env.version }}
+#              artifact_name: Skia-${{ env.version }}-linux-${{ matrix.build_type }}-arm64.zip
+#              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#            # The shell to run commands with in the container
+#            shell: /bin/bash
+#            install: |
+#              apt-get update -q -y
+#              apt-get install -q -y bash
+#            run: |
+#              cd /checkout
+#              /bin/bash script/prepare_linux_arm.sh
+#              python3 script/check_release.py --version ${build_version} --build-type ${build_type}
+#              python3 script/checkout.py --version ${build_version}
+#              python3 script/build.py --build-type ${build_type} --build-type ${build_type}
+#              python3 script/archive.py --version ${build_version} --build-type ${build_type}
+#              echo "Produced artifact at ${PWD}/${artifact_name}"
+#      - uses: uraimo/run-on-arch-action@v2.0.5
+#        name: Test Build
+#        id: test-build
+#        if: ${{ github.event.inputs.skip_release == 'true' || github.ref != 'refs/heads/main' }}
+#        with:
+#            arch: aarch64
+#            distro: ubuntu20.04
+#            githubToken: ${{ secrets.GITHUB_TOKEN }}
+#            # Mount checkout directory as /checkout in the container
+#            dockerRunArgs: |
+#              --volume "${GITHUB_WORKSPACE}:/checkout"
+#            env: |
+#              build_type: ${{ matrix.build_type }}
+#              build_version: ${{ env.version }}
+#              artifact_name: Skia-${{ env.version }}-linux-${{ matrix.build_type }}-arm64.zip
+#            # The shell to run commands with in the container
+#            shell: /bin/bash
+#            install: |
+#              apt-get update -q -y
+#              apt-get install -q -y bash
+#            run: |
+#              cd /checkout
+#              /bin/bash script/prepare_linux_arm.sh
+#              python3 script/checkout.py --version ${build_version}
+#              python3 script/build.py --build-type ${build_type} --build-type ${build_type}
+#              echo "Verified build"
+#      - uses: actions/upload-artifact@v3
+#        if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
+#        with:
+#            name: Skia-${{ env.version }}-linux-${{ matrix.build_type }}-arm64.zip
+#            path: '*.zip'
+#        env:
+#            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      - run: python3 script/release.py --version ${{ env.version }} --build-type ${{ matrix.build_type }} --target linux --machine arm64
+#        if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  windows:
-    runs-on: windows-2019
-    strategy:
-      matrix:
-        build_type: [Debug, Release]
-        machine: ["x64", "arm64"]
-      fail-fast: false
-    steps:
-      - run: git config --global core.autocrlf input
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.9'
-      - shell: bash
-        run: python3 script/check_release.py --version ${{ env.version }} --build-type ${{ matrix.build_type }} --target windows --machine ${{ matrix.machine }}
-        if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - uses: microsoft/setup-msbuild@v1
-      - uses: ilammy/msvc-dev-cmd@v1
-      - shell: bash
-        run: python3 script/checkout.py --version ${{ env.version }}
-      - shell: bash
-        run: python3 script/build.py --build-type ${{ matrix.build_type }} --target windows --machine ${{ matrix.machine }}
-      - shell: bash
-        run: python3 script/archive.py --version ${{ env.version }} --build-type ${{ matrix.build_type }} --target windows --machine ${{ matrix.machine }}
-      - uses: actions/upload-artifact@v3
-        if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
-        with:
-          name: Skia-${{ env.version }}-windows-${{ matrix.build_type }}-${{ matrix.machine }}.zip
-          path: '*.zip'
-      - shell: bash
-        run: python3 script/release.py --version ${{ env.version }} --build-type ${{ matrix.build_type }} --target windows --machine ${{ matrix.machine }}
-        if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#  windows:
+#    runs-on: windows-2019
+#    strategy:
+#      matrix:
+#        build_type: [Debug, Release]
+#        machine: ["x64", "arm64"]
+#      fail-fast: false
+#    steps:
+#      - run: git config --global core.autocrlf input
+#      - uses: actions/checkout@v2
+#      - uses: actions/setup-python@v5
+#        with:
+#          python-version: '3.9'
+#      - shell: bash
+#        run: python3 script/check_release.py --version ${{ env.version }} --build-type ${{ matrix.build_type }} --target windows --machine ${{ matrix.machine }}
+#        if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      - uses: microsoft/setup-msbuild@v1
+#      - uses: ilammy/msvc-dev-cmd@v1
+#      - shell: bash
+#        run: python3 script/checkout.py --version ${{ env.version }}
+#      - shell: bash
+#        run: python3 script/build.py --build-type ${{ matrix.build_type }} --target windows --machine ${{ matrix.machine }}
+#      - shell: bash
+#        run: python3 script/archive.py --version ${{ env.version }} --build-type ${{ matrix.build_type }} --target windows --machine ${{ matrix.machine }}
+#      - uses: actions/upload-artifact@v3
+#        if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
+#        with:
+#          name: Skia-${{ env.version }}-windows-${{ matrix.build_type }}-${{ matrix.machine }}.zip
+#          path: '*.zip'
+#      - shell: bash
+#        run: python3 script/release.py --version ${{ env.version }} --build-type ${{ matrix.build_type }} --target windows --machine ${{ matrix.machine }}
+#        if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
