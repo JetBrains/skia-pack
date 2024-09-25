@@ -13,11 +13,11 @@ on:
         default: 'false'
 
 env:
-  version: m126-d2aaacc35d-2
+  version: m126-d2aaacc35d-4
 
 jobs:
   macos:
-    runs-on: ${{ fromJson('{"macos":"macos-13","ios":"macos-13","iosSim":"macos-13","tvos":"macos-13","tvosSim":"macos-13"}')[matrix.target] }}
+    runs-on: ${{ fromJson('{"macos":"macos-13","ios":"macos-12","iosSim":"macos-12","tvos":"macos-13","tvosSim":"macos-13"}')[matrix.target] }}
     strategy:
       matrix:
         target: ["macos", "ios", "iosSim", "tvos", "tvosSim"]
@@ -33,9 +33,9 @@ jobs:
         if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Select Xcode 14.3.1 for iOS targets
-        run: sudo xcode-select -s /Applications/Xcode_14.3.1.app
-        if: ${{ matrix.target }} == 'ios' || ${{ matrix.target }} == 'iosSim'
+      - name: Select Xcode 13.1 for iOS targets
+        if: ${{ matrix.target == 'ios' || matrix.target == 'iosSim' }}
+        run: sudo xcode-select -s /Applications/Xcode_13.1.app
       - name: Print Xcode version
         run: xcodebuild -version
       - run: python3 script/checkout.py --version ${{ env.version }}
