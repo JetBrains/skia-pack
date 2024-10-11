@@ -3,7 +3,7 @@
 import common, os, subprocess, sys
 
 def main():
-  os.chdir(os.path.join(os.path.dirname(__file__), os.pardir, 'skia'))
+  os.chdir(os.path.join(os.path.dirname(__file__), os.pardir, '../skia'))
 
   build_type = common.build_type()
   machine = common.machine()
@@ -133,7 +133,7 @@ def main():
   gn = 'gn.exe' if 'windows' == host else 'gn'
   print([os.path.join('bin', gn), 'gen', out, '--args=' + ' '.join(args)])
   subprocess.check_call([os.path.join('bin', gn), 'gen', out, '--args=' + ' '.join(args)])
-  subprocess.check_call([os.path.join('..', tools_dir, ninja), '-C', out, 'skia', 'modules'])
+  subprocess.check_call([ninja, '-C', out, 'skia', 'modules'])
 
   return 0
 

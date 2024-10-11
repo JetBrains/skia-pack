@@ -11,7 +11,7 @@ def parents(path):
   return res
 
 def main():
-  os.chdir(os.path.join(os.path.dirname(__file__), os.pardir, 'skia'))
+  os.chdir(os.path.join(os.path.dirname(__file__), os.pardir, '../skia'))
   
   build_type = common.build_type()
   version = common.version()
