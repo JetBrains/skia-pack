@@ -13,5 +13,5 @@ apt-get install gcc-9 g++-9 -y
 update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 60 --slave /usr/bin/g++ g++ /usr/bin/g++-9
 update-alternatives --config gcc 
 
-apt-get install git python wget -y
+apt-get install git python3 wget -y
 apt-get install ninja-build fontconfig libfontconfig1-dev libglu1-mesa-dev curl zip -y
