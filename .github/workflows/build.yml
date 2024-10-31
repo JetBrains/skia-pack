@@ -53,7 +53,7 @@ jobs:
 
   linux:
     runs-on: ubuntu-latest
-    container: ubuntu:22.04
+    container: ubuntu:20.04
     strategy:
       matrix:
         build_type: [Debug, Release]
@@ -80,7 +80,7 @@ jobs:
 
   linux-wasm:
     runs-on: ubuntu-latest
-    container: ubuntu:22.04
+    container: ubuntu:20.04
     strategy:
       matrix:
         build_type: [ Debug, Release ]
@@ -107,7 +107,7 @@ jobs:
 
   linux-android:
     runs-on: ubuntu-latest
-    container: ubuntu:22.04
+    container: ubuntu:20.04
     strategy:
       matrix:
         build_type: [ Debug, Release ]
@@ -151,7 +151,7 @@ jobs:
         if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
         with:
             arch: aarch64
-            distro: ubuntu22.04
+            distro: ubuntu20.04
             githubToken: ${{ secrets.GITHUB_TOKEN }}
             # Mount checkout directory as /checkout in the container
             dockerRunArgs: |
@@ -180,7 +180,7 @@ jobs:
         if: ${{ github.event.inputs.skip_release == 'true' || github.ref != 'refs/heads/main' }}
         with:
             arch: aarch64
-            distro: ubuntu22.04
+            distro: ubuntu20.04
             githubToken: ${{ secrets.GITHUB_TOKEN }}
             # Mount checkout directory as /checkout in the container
             dockerRunArgs: |
