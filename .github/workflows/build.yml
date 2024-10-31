@@ -53,7 +53,7 @@ jobs:
 
   linux:
     runs-on: ubuntu-latest
-    container: ubuntu:20.04
+    container: ubuntu:22.04
     strategy:
       matrix:
         build_type: [Debug, Release]
@@ -80,7 +80,7 @@ jobs:
 
   linux-wasm:
     runs-on: ubuntu-latest
-    container: ubuntu:20.04
+    container: ubuntu:22.04
     strategy:
       matrix:
         build_type: [ Debug, Release ]
@@ -107,7 +107,7 @@ jobs:
 
   linux-android:
     runs-on: ubuntu-latest
-    container: ubuntu:20.04
+    container: ubuntu:22.04
     strategy:
       matrix:
         build_type: [ Debug, Release ]
@@ -145,13 +145,13 @@ jobs:
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
-      - uses: uraimo/run-on-arch-action@v2.0.5
+      - uses: uraimo/run-on-arch-action@v2.8.1
         name: Assemble
         id: assemble
         if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
         with:
             arch: aarch64
-            distro: ubuntu20.04
+            distro: ubuntu22.04
             githubToken: ${{ secrets.GITHUB_TOKEN }}
             # Mount checkout directory as /checkout in the container
             dockerRunArgs: |
@@ -174,13 +174,13 @@ jobs:
               python3 script/build.py --build-type ${build_type} --build-type ${build_type}
               python3 script/archive.py --version ${build_version} --build-type ${build_type}
               echo "Produced artifact at ${PWD}/${artifact_name}"
-      - uses: uraimo/run-on-arch-action@v2.0.5
+      - uses: uraimo/run-on-arch-action@v2.8.1
         name: Test Build
         id: test-build
         if: ${{ github.event.inputs.skip_release == 'true' || github.ref != 'refs/heads/main' }}
         with:
             arch: aarch64
-            distro: ubuntu20.04
+            distro: ubuntu22.04
             githubToken: ${{ secrets.GITHUB_TOKEN }}
             # Mount checkout directory as /checkout in the container
             dockerRunArgs: |
