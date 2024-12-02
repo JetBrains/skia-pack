@@ -12,6 +12,9 @@ on:
         required: true
         default: 'false'
 
+permissions:
+  contents: write
+
 env:
   version: m126-6fd3120c1b
 

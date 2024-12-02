@@ -58,7 +58,7 @@ def github_headers():
   if os.environ.get('GITHUB_BASIC'):
     auth = 'Basic ' + base64.b64encode(os.environ.get('GITHUB_BASIC').encode('utf-8')).decode('utf-8')
   else:
-    auth = 'token ' + os.environ.get('GITHUB_TOKEN')
+    auth = 'Bearer ' + os.environ.get('GITHUB_TOKEN')
   return {
     'Accept': 'application/vnd.github.v3+json',
     'Authorization': auth
