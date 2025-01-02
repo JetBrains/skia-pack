@@ -49,6 +49,7 @@ def main():
       args += ['target_os="ios"']
       if isIosSim:
         args += ['ios_use_simulator=true']
+        args += ['extra_cflags=["-mios-simulator-version-min=12.0"]']
       else:
         args += ['ios_min_target="12.0"']
     else:
