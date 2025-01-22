@@ -11,6 +11,8 @@ def main():
   host_machine = common.host_machine()
   target = common.target()
   ndk = common.ndk()
+  
+  print("build_type {}; machine {}; host {}; host_machine {}; target {}".format(build_type, machine, host, host_machine, target))
 
   tools_dir = "depot_tools"
   ninja = 'ninja.bat' if 'windows' == host else 'ninja'
