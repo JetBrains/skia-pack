@@ -19,7 +19,7 @@ def checkout_skia(commit):
 
   # Checkout commit
   print("> Checking out", commit)
-  subprocess.check_call(["git", "-c", "advice.detachedHead=false", "checkout", commit])
+  subprocess.check_call(["git", "switch", "--detach", commit])
 
 def main():
   os.chdir(os.path.join(os.path.dirname(__file__), os.pardir))
