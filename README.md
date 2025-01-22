@@ -17,7 +17,7 @@ Prebuilt binaries can be found [in releases](https://github.com/JetBrains/skia-p
 
 ```sh
 python3 script/checkout.py --version m116-47d3027-1
-python3 script/build.py
+python3 script/build.py [--host wasm | macos | ...]
 python3 script/archive.py --version m116-47d3027-1
 ```
 
