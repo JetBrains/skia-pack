@@ -46,7 +46,7 @@ def main():
     'modules/skunicode/src/*.h',
     'src/base/*.h',
     'src/core/*.h',
-    'src/gpu/gl/*.h',
+    'src/gpu/ganesh/gl/*.h',
     'src/utils/*.h',
     'third_party/externals/angle2/LICENSE',
     'third_party/externals/angle2/include/**/*',
