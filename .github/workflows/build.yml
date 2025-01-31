@@ -164,6 +164,7 @@ jobs:
             # The shell to run commands with in the container
             shell: /bin/bash
             install: |
+              apt-get clean
               apt-get update -q -y
               apt-get install -q -y bash
             run: |
@@ -192,6 +193,7 @@ jobs:
             # The shell to run commands with in the container
             shell: /bin/bash
             install: |
+              apt-get clean
               apt-get update -q -y
               apt-get install -q -y bash
             run: |
