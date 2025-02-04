@@ -152,7 +152,7 @@ jobs:
         if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
         with:
             arch: aarch64
-            distro: ubuntu20.04
+            distro: ubuntu22.04
             githubToken: ${{ secrets.GITHUB_TOKEN }}
             # Mount checkout directory as /checkout in the container
             dockerRunArgs: |
@@ -164,10 +164,6 @@ jobs:
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             # The shell to run commands with in the container
             shell: /bin/bash
-            install: |
-              apt-get clean
-              apt-get update -q -y
-              apt-get install -q -y bash
             run: |
               cd /checkout
               /bin/bash script/prepare_linux_arm.sh
@@ -182,7 +178,7 @@ jobs:
         if: ${{ github.event.inputs.skip_release == 'true' || github.ref != 'refs/heads/main' }}
         with:
             arch: aarch64
-            distro: ubuntu20.04
+            distro: ubuntu22.04
             githubToken: ${{ secrets.GITHUB_TOKEN }}
             # Mount checkout directory as /checkout in the container
             dockerRunArgs: |
@@ -193,10 +189,6 @@ jobs:
               artifact_name: Skia-${{ env.version }}-linux-${{ matrix.build_type }}-arm64.zip
             # The shell to run commands with in the container
             shell: /bin/bash
-            install: |
-              apt-get clean
-              apt-get update -q -y
-              apt-get install -q -y bash
             run: |
               cd /checkout
               /bin/bash script/prepare_linux_arm.sh
