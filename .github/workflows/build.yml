@@ -151,7 +151,7 @@ jobs:
         if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
         with:
             arch: aarch64
-            distro: ubuntu20.04
+            distro: ubuntu22.04
             githubToken: ${{ secrets.GITHUB_TOKEN }}
             # Mount checkout directory as /checkout in the container
             dockerRunArgs: |
@@ -180,7 +180,7 @@ jobs:
         if: ${{ github.event.inputs.skip_release == 'true' || github.ref != 'refs/heads/main' }}
         with:
             arch: aarch64
-            distro: ubuntu20.04
+            distro: ubuntu22.04
             githubToken: ${{ secrets.GITHUB_TOKEN }}
             # Mount checkout directory as /checkout in the container
             dockerRunArgs: |
