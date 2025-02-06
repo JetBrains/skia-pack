@@ -51,6 +51,23 @@ def main():
   print("> Fetching ninja")
   subprocess.check_call(["python3", "bin/fetch-ninja"])
 
+  # Patch an issue in Windows toolchain:
+  # Enable delayed environment variable expansion for CMD to make GitHub Actions happy
+  # https://issues.skia.org/issues/393402169
+  with open("gn/toolchain/BUILD.gn", "r") as toolchain_file:
+    toolchain_file_contents = toolchain_file.read()
+
+  toolchain_file_contents = toolchain_file_contents.replace(
+    'shell = "cmd.exe /c',
+    'shell = "cmd.exe /v:on /c',
+  ).replace(
+    r'env_setup = "$shell set \"PATH=%PATH%',
+    r'env_setup = "$shell set \"PATH=!PATH!',
+  )
+
+  with open("gn/toolchain/BUILD.gn", "w") as toolchain_file:
+    toolchain_file.write(toolchain_file_contents)
+
   return 0
 
 if __name__ == '__main__':

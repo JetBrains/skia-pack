@@ -28,3 +28,7 @@ python3 script/checkout.py --version m126-6fd3120c1b
 python3 script/build.py --build-type Debug
 python3 script/archive.py --version m126-6fd3120c1b --build-type Debug
 ```
+
+### Windows-specific
+
+On Windows, skia-pack requires Clang-cl to be installed. Clang-cl is a part of LLVM and can be downloaded from the [LLVM project's website](https://releases.llvm.org/). Please also make sure that Clang-cl.exe is available on %PATH%.
