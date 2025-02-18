@@ -171,7 +171,7 @@ jobs:
               /bin/bash script/prepare_linux_arm.sh
               python3 script/check_release.py --version ${build_version} --build-type ${build_type}
               python3 script/checkout.py --version ${build_version}
-              python3 script/build.py --build-type ${build_type} --build-type ${build_type}
+              python3 script/build.py --build-type ${build_type}
               python3 script/archive.py --version ${build_version} --build-type ${build_type}
               echo "Produced artifact at ${PWD}/${artifact_name}"
       - uses: uraimo/run-on-arch-action@v2.8.1
@@ -198,7 +198,7 @@ jobs:
               cd /checkout
               /bin/bash script/prepare_linux_arm.sh
               python3 script/checkout.py --version ${build_version}
-              python3 script/build.py --build-type ${build_type} --build-type ${build_type}
+              python3 script/build.py --build-type ${build_type}
               echo "Verified build"
       - uses: actions/upload-artifact@v4
         if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
