@@ -16,7 +16,7 @@ permissions:
   contents: write
 
 env:
-  version: m132-9b3c42e2f9-2
+  version: m132-9b3c42e2f9-3
 
 jobs:
   macos:
@@ -138,68 +138,29 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   linux-arm64:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-22.04-arm
     strategy:
       matrix:
         build_type: [ Debug, Release ]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
-      - uses: uraimo/run-on-arch-action@v2.8.1
+      - uses: addnab/docker-run-action@v3
         name: Assemble
         id: assemble
-        if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
         with:
-            arch: aarch64
-            distro: ubuntu22.04
-            githubToken: ${{ secrets.GITHUB_TOKEN }}
+            image: arm64v8/ubuntu:20.04
             # Mount checkout directory as /checkout in the container
-            dockerRunArgs: |
-              --volume "${GITHUB_WORKSPACE}:/checkout"
-            env: |
-              build_type: ${{ matrix.build_type }}
-              build_version: ${{ env.version }}
-              artifact_name: Skia-${{ env.version }}-linux-${{ matrix.build_type }}-arm64.zip
-              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            options: -v ${{ github.workspace }}:/checkout -e BUILD_TYPE=${{ matrix.build_type }} -e BUILD_VERSION=${{ env.version }} 
             # The shell to run commands with in the container
             shell: /bin/bash
-            install: |
-              apt-get update -q -y
-              apt-get install -q -y bash
             run: |
               cd /checkout
               /bin/bash script/prepare_linux_arm.sh
-              python3 script/check_release.py --version ${build_version} --build-type ${build_type}
-              python3 script/checkout.py --version ${build_version}
-              python3 script/build.py --build-type ${build_type} --build-type ${build_type}
-              python3 script/archive.py --version ${build_version} --build-type ${build_type}
-              echo "Produced artifact at ${PWD}/${artifact_name}"
-      - uses: uraimo/run-on-arch-action@v2.8.1
-        name: Test Build
-        id: test-build
-        if: ${{ github.event.inputs.skip_release == 'true' || github.ref != 'refs/heads/main' }}
-        with:
-            arch: aarch64
-            distro: ubuntu22.04
-            githubToken: ${{ secrets.GITHUB_TOKEN }}
-            # Mount checkout directory as /checkout in the container
-            dockerRunArgs: |
-              --volume "${GITHUB_WORKSPACE}:/checkout"
-            env: |
-              build_type: ${{ matrix.build_type }}
-              build_version: ${{ env.version }}
-              artifact_name: Skia-${{ env.version }}-linux-${{ matrix.build_type }}-arm64.zip
-            # The shell to run commands with in the container
-            shell: /bin/bash
-            install: |
-              apt-get update -q -y
-              apt-get install -q -y bash
-            run: |
-              cd /checkout
-              /bin/bash script/prepare_linux_arm.sh
-              python3 script/checkout.py --version ${build_version}
-              python3 script/build.py --build-type ${build_type} --build-type ${build_type}
-              echo "Verified build"
+              python3 script/check_release.py --version ${BUILD_VERSION} --build-type ${BUILD_TYPE}
+              python3 script/checkout.py --version ${BUILD_VERSION}
+              python3 script/build.py --build-type ${BUILD_TYPE}
+              python3 script/archive.py --version ${BUILD_VERSION} --build-type ${BUILD_TYPE}
       - uses: actions/upload-artifact@v4
         if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
         with:
