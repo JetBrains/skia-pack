@@ -148,7 +148,6 @@ jobs:
       - uses: addnab/docker-run-action@v3
         name: Assemble
         id: assemble
-        if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
         with:
             image: arm64v8/ubuntu:20.04
             # Mount checkout directory as /checkout in the container
