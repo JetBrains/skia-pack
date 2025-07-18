@@ -16,7 +16,7 @@ permissions:
   contents: write
 
 env:
-  version: m132-a00c390e98-1
+  version: m138-9e6b5bff162-1
 
 jobs:
   macos:
@@ -174,7 +174,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   windows:
-    runs-on: windows-2019
+    runs-on: windows-2022
     strategy:
       matrix:
         build_type: [Debug, Release]

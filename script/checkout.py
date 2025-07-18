@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-import common, os, re, subprocess, sys
+import common, os, re, subprocess, sys, time
 
 def checkout_skia(commit):
   # Clone Skia
@@ -21,6 +21,30 @@ def checkout_skia(commit):
   print("> Checking out", commit)
   subprocess.check_call(["git", "-c", "advice.detachedHead=false", "checkout", commit])
 
+def git_sync_with_retries(max_retries=3, backoff_seconds=5):
+    attempt = 0
+    while True:
+        try:
+            print("> Running tools/git-sync-deps (attempt {}/{})".format(attempt+1, max_retries+1))
+            # On Windows we need to disable HTTPS verify
+            if common.host() == 'windows':
+                env = os.environ.copy()
+                env['PYTHONHTTPSVERIFY'] = '0'
+                subprocess.check_call([sys.executable, "tools/git-sync-deps"], env=env)
+            else:
+                subprocess.check_call([sys.executable, "tools/git-sync-deps"])
+            print("Success")
+            break
+        except subprocess.CalledProcessError as e:
+            attempt += 1
+            if attempt > max_retries:
+                print("All {} retries failed. Giving up.".format(max_retries))
+                raise
+            else:
+                wait = backoff_seconds * attempt
+                print(f"Failed (exit {e.returncode}), retrying in {wait}s…")
+                time.sleep(wait)
+
 def main():
   os.chdir(os.path.join(os.path.dirname(__file__), os.pardir))
 
@@ -40,12 +64,8 @@ def main():
 
   # git deps
   print("> Running tools/git-sync-deps")
-  if 'windows' == common.host():
-    env = os.environ.copy()
-    env['PYTHONHTTPSVERIFY']='0'
-    subprocess.check_call(["python3", "tools/git-sync-deps"], env=env)
-  else:
-    subprocess.check_call(["python3", "tools/git-sync-deps"])
+  # Trying to avoid 429 HTTP Error from Google repos
+  git_sync_with_retries()
 
   # fetch ninja
   print("> Fetching ninja")
