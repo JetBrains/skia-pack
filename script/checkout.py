@@ -33,16 +33,16 @@ def git_sync_with_retries(max_retries=3, backoff_seconds=5):
                 subprocess.check_call([sys.executable, "tools/git-sync-deps"], env=env)
             else:
                 subprocess.check_call([sys.executable, "tools/git-sync-deps"])
-            print("✔ Success")
+            print("Success")
             break
         except subprocess.CalledProcessError as e:
             attempt += 1
             if attempt > max_retries:
-                print("✖ All {} retries failed. Giving up.".format(max_retries))
+                print("All {} retries failed. Giving up.".format(max_retries))
                 raise
             else:
                 wait = backoff_seconds * attempt
-                print(f"⚠️  Failed (exit {e.returncode}), retrying in {wait}s…")
+                print(f"Failed (exit {e.returncode}), retrying in {wait}s…")
                 time.sleep(wait)
 
 def main():
