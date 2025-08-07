@@ -18,17 +18,17 @@ Prebuilt binaries can be found [in releases](https://github.com/JetBrains/skia-p
 Note: Better check build.yml for the detailed command for your machine
 
 ```sh
-python3 script/checkout.py --version m138-9e6b5bff162
+python3 script/checkout.py --version m138-c1caa59365c
 python3 script/build.py
-python3 script/archive.py --version m138-9e6b5bff162
+python3 script/archive.py --version m138-c1caa59365c
 ```
 
 To build a debug build:
 
 ```sh
-python3 script/checkout.py --version m138-9e6b5bff162
+python3 script/checkout.py --version m138-c1caa59365c
 python3 script/build.py --build-type Debug
-python3 script/archive.py --version m138-9e6b5bff162 --build-type Debug
+python3 script/archive.py --version m138-c1caa59365c --build-type Debug
 ```
 
 ### Windows-specific
