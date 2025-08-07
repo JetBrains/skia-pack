@@ -14,21 +14,21 @@ Prebuilt binaries can be found [in releases](https://github.com/JetBrains/skia-p
 3. Update `version` in [.github/workflows/build.yml](https://github.com/JetBrains/skia-pack/blob/master/.github/workflows/build.yml).
 
 ## Building locally
-
+Replace SKIA_VERSION with the version you want to build, for example `m138-9e6b5bff162`.
 Note: Better check build.yml for the detailed command for your machine
 
 ```sh
-python3 script/checkout.py --version m138-9e6b5bff162
+python3 script/checkout.py --version SKIA_VERSION
 python3 script/build.py
-python3 script/archive.py --version m138-9e6b5bff162
+python3 script/archive.py --version SKIA_VERSION
 ```
 
 To build a debug build:
 
 ```sh
-python3 script/checkout.py --version m138-9e6b5bff162
+python3 script/checkout.py --version SKIA_VERSION
 python3 script/build.py --build-type Debug
-python3 script/archive.py --version m138-9e6b5bff162 --build-type Debug
+python3 script/archive.py --version SKIA_VERSION --build-type Debug
 ```
 
 ### Windows-specific

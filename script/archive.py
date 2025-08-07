@@ -44,6 +44,7 @@ def main():
     'modules/skcms/*.h',
     'modules/skunicode/include/*.h',
     'modules/skunicode/src/*.h',
+    'modules/jsonreader/*.h',
     'src/base/*.h',
     'src/core/*.h',
     'src/gpu/ganesh/gl/*.h',
