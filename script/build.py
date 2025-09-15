@@ -39,11 +39,13 @@ def main():
     'skia_use_system_icu=false',
     'skia_enable_skottie=true'
   ]
+  extra_cflags_cc = []
 
   if isMacos or isIos or isTvos:
     if isMacos:
         args += ['skia_use_fonthost_mac=true']
-    args += ['extra_cflags_cc=["-frtti"]']
+    # args += ['extra_cflags_cc=["-frtti"]']
+    extra_cflags_cc += ["-frtti"]
     args += ['skia_use_metal=true']
     if isIos:
       args += ['target_os="ios"']
@@ -71,16 +73,18 @@ def main():
         # TODO: use clang on all targets!
         args += [
             'skia_gl_standard="gles"',
-            'extra_cflags_cc=["-fno-exceptions", "-fno-rtti", "-flax-vector-conversions=all", "-D_GLIBCXX_USE_CXX11_ABI=0"]',
+            # 'extra_cflags_cc=["-fno-exceptions", "-fno-rtti", "-flax-vector-conversions=all", "-D_GLIBCXX_USE_CXX11_ABI=0"]',
             'cc="clang"',
             'cxx="clang++"',
         ]
+        extra_cflags_cc += ["-fno-exceptions", "-fno-rtti", "-flax-vector-conversions=all", "-D_GLIBCXX_USE_CXX11_ABI=0"]
     else:
         args += [
-            'extra_cflags_cc=["-fno-exceptions", "-fno-rtti","-D_GLIBCXX_USE_CXX11_ABI=0"]',
+            # 'extra_cflags_cc=["-fno-exceptions", "-fno-rtti","-D_GLIBCXX_USE_CXX11_ABI=0"]',
             'cc="gcc-9"',
             'cxx="g++-9"',
         ]
+        extra_cflags_cc += ["-fno-exceptions", "-fno-rtti","-D_GLIBCXX_USE_CXX11_ABI=0"]
   elif 'windows' == target:
     args += [
       'skia_use_direct3d=true',
@@ -133,6 +137,9 @@ def main():
         'skia_use_expat=true',   # other targets have this set in skia.gni
         'extra_cflags=["-DSK_SUPPORT_GPU=1", "-DSK_GL", "-DSK_DISABLE_LEGACY_SHADERCONTEXT", "-sSUPPORT_LONGJMP=wasm"]'
     ]
+
+  extra_cflags_cc += ["-include", "../../../change_symbols/change_symbols.h"]
+  args += ["extra_cflags_cc=[" + ", ".join(f'"{flag}"' for flag in extra_cflags_cc) + "]"]
 
   if 'linux' == host and 'arm64' == host_machine:
     tools_dir = 'tools'
