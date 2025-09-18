@@ -138,7 +138,7 @@ def main():
         'extra_cflags=["-DSK_SUPPORT_GPU=1", "-DSK_GL", "-DSK_DISABLE_LEGACY_SHADERCONTEXT", "-sSUPPORT_LONGJMP=wasm"]'
     ]
 
-  extra_cflags_cc += ["-include", "../../../change_symbols/change_symbols.h"]
+#   extra_cflags_cc += ["-include", "../../../change_symbols/change_symbols.h"]
   args += ["extra_cflags_cc=[" + ", ".join(f'"{flag}"' for flag in extra_cflags_cc) + "]"]
 
   if 'linux' == host and 'arm64' == host_machine:

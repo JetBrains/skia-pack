@@ -1,3 +1,6 @@
+#ifndef CHANGE_SYMBOLS_H
+#define CHANGE_SYMBOLS_H
+
 #define AAT skiko_AAT
 #define ActiveEdgeList skiko_ActiveEdgeList
 #define ActiveEdge skiko_ActiveEdge
@@ -854,7 +857,6 @@
 #define SkDashPath skiko_SkDashPath
 #define SkDataTable skiko_SkDataTable
 #define SkData skiko_SkData
-#define SkDebugf skiko_SkDebugf
 #define SkDebugfStream skiko_SkDebugfStream
 #define SkDecomposeUpper2x2 skiko_SkDecomposeUpper2x2
 #define SkDecompress skiko_SkDecompress
@@ -5550,3 +5552,5 @@
 #define ztrans_setFrom skiko_ztrans_setFrom
 #define ztrans_setTime skiko_ztrans_setTime
 #define ztrans_setTo skiko_ztrans_setTo
+
+#endif
