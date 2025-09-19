@@ -28,7 +28,7 @@ def main():
     args = parser.parse_args()
 
     root_dir = os.path.dirname(__file__)
-    symbols_file = os.path.join(root_dir, "change_symbols", "change_symbols.h")
+    symbols_file = os.path.join(root_dir, "..", "change_symbols", "change_symbols.h")
 
     # Collect files
     files_to_process = []
