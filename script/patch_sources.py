@@ -27,8 +27,11 @@ def main():
     parser.add_argument("--sources", required=True, help="Path to the skia directory")
     args = parser.parse_args()
 
-    root_dir = os.path.dirname(__file__)
-    symbols_file = os.path.join(root_dir, "..", "change_symbols", "change_symbols.h")
+    abs_path = os.path.abspath(__file__)
+    root_dir = os.path.dirname(abs_path)
+    print(f"Root: {root_dir}")
+    symbols_file = os.path.normpath(os.path.join(root_dir, "..", "change_symbols", "change_symbols.h"))
+    print(f"Symbols: {symbols_file}")
 
     # Collect files
     files_to_process = []
