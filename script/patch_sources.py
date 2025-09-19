@@ -1,6 +1,7 @@
 import os
 import re
 import time
+import argparse
 
 def add_self_include(filepath, file):
 
@@ -12,7 +13,7 @@ def add_self_include(filepath, file):
 
     # Skip if the include is already there
     if any(line.strip() == include_line.strip() for line in content):
-        # print(f"Skipped (already included): {filepath}")
+        return
     else:
         # Prepend the include line
         new_content = [include_line] + content
@@ -21,15 +22,13 @@ def add_self_include(filepath, file):
         with open(filepath, "w", encoding="utf-8") as f:
             f.writelines(new_content)
 
-        # print(f"Modified: {filepath}")
-
 def main():
     parser = argparse.ArgumentParser(description="Add #include to code files in sources")
     parser.add_argument("--sources", required=True, help="Path to the skia directory")
     args = parser.parse_args()
 
     root_dir = os.path.dirname(__file__)
-    symbols_file = os.path.join(root_dir, "change_symbols", "symbols.h")
+    symbols_file = os.path.join(root_dir, "change_symbols", "change_symbols.h")
 
     # Collect files
     files_to_process = []
