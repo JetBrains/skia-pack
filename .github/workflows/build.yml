@@ -20,7 +20,7 @@ env:
 
 jobs:
   macos:
-    runs-on: ${{ fromJson('{"macos":"macos-13","ios":"macos-13","iosSim":"macos-13","tvos":"macos-13","tvosSim":"macos-13"}')[matrix.target] }}
+    runs-on: ${{ fromJson('{"macos":"macos-15","ios":"macos-15","iosSim":"macos-15","tvos":"macos-15","tvosSim":"macos-15"}')[matrix.target] }}
     strategy:
       matrix:
         target: ["macos", "ios", "iosSim", "tvos", "tvosSim"]
