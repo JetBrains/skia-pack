@@ -79,8 +79,8 @@ def main():
     else:
         args += [
             'extra_cflags_cc=["-fno-exceptions", "-fno-rtti","-D_GLIBCXX_USE_CXX11_ABI=0"]',
-            'cc="gcc-9"',
-            'cxx="g++-9"',
+            'cc="gcc-10"',
+            'cxx="g++-10"',
         ]
   elif 'windows' == target:
     args += [
