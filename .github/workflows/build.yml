@@ -155,12 +155,13 @@ jobs:
             # The shell to run commands with in the container
             shell: /bin/bash
             run: |
+              set -euo pipefail
               cd /checkout
               /bin/bash script/prepare_linux_arm.sh
               python3 script/check_release.py --version ${BUILD_VERSION} --build-type ${BUILD_TYPE}
               python3 script/checkout.py --version ${BUILD_VERSION}
-              python3 script/build.py --build-type ${BUILD_TYPE}
-              python3 script/archive.py --version ${BUILD_VERSION} --build-type ${BUILD_TYPE}
+              python3 script/build.py --build-type ${BUILD_TYPE} --target linux --machine arm64
+              python3 script/archive.py --version ${BUILD_VERSION} --build-type ${BUILD_TYPE} --target linux --machine arm64
       - uses: actions/upload-artifact@v4
         if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
         with:
