@@ -68,13 +68,12 @@ def main():
           args += ['extra_cflags=["-stdlib=libc++", "-mmacosx-version-min=10.13"]']
   elif 'linux' == target:
     if 'arm64' == machine:
-        # TODO: use clang on all targets!
         args += [
             'skia_gl_standard="gles"',
             'skia_use_egl=true',
-            'extra_cflags_cc=["-fno-exceptions", "-fno-rtti", "-flax-vector-conversions=all", "-D_GLIBCXX_USE_CXX11_ABI=0"]',
-            'cc="clang"',
-            'cxx="clang++"',
+            'extra_cflags_cc=["-fno-exceptions", "-fno-rtti", "-D_GLIBCXX_USE_CXX11_ABI=0", "-mno-outline-atomics"]',
+            'cc="gcc-10"',
+            'cxx="g++-10"',
         ]
     else:
         args += [
