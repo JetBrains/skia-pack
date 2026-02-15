@@ -151,7 +151,7 @@ jobs:
         with:
             image: arm64v8/ubuntu:20.04
             # Mount checkout directory as /checkout in the container
-            options: -v ${{ github.workspace }}:/checkout -e BUILD_TYPE=${{ matrix.build_type }} -e BUILD_VERSION=${{ env.version }} 
+            options: -v ${{ github.workspace }}:/checkout -e BUILD_TYPE=${{ matrix.build_type }} -e BUILD_VERSION=${{ env.version }} -e GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
             # The shell to run commands with in the container
             shell: /bin/bash
             run: |
