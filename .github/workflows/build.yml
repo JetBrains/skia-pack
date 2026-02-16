@@ -16,7 +16,7 @@ permissions:
   contents: write
 
 env:
-  version: m144-e2e6623374
+  version: m144-e2e6623374-2
 
 jobs:
   macos:
@@ -151,16 +151,17 @@ jobs:
         with:
             image: arm64v8/ubuntu:20.04
             # Mount checkout directory as /checkout in the container
-            options: -v ${{ github.workspace }}:/checkout -e BUILD_TYPE=${{ matrix.build_type }} -e BUILD_VERSION=${{ env.version }} 
+            options: -v ${{ github.workspace }}:/checkout -e BUILD_TYPE=${{ matrix.build_type }} -e BUILD_VERSION=${{ env.version }} -e GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
             # The shell to run commands with in the container
             shell: /bin/bash
             run: |
+              set -euo pipefail
               cd /checkout
               /bin/bash script/prepare_linux_arm.sh
               python3 script/check_release.py --version ${BUILD_VERSION} --build-type ${BUILD_TYPE}
               python3 script/checkout.py --version ${BUILD_VERSION}
-              python3 script/build.py --build-type ${BUILD_TYPE}
-              python3 script/archive.py --version ${BUILD_VERSION} --build-type ${BUILD_TYPE}
+              python3 script/build.py --build-type ${BUILD_TYPE} --target linux --machine arm64
+              python3 script/archive.py --version ${BUILD_VERSION} --build-type ${BUILD_TYPE} --target linux --machine arm64
       - uses: actions/upload-artifact@v4
         if: ${{ github.event.inputs.skip_release != 'true' && github.ref == 'refs/heads/main' }}
         with:

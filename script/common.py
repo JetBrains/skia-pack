@@ -29,7 +29,7 @@ def machine():
 def target():
   parser = create_parser()
   (args, _) = parser.parse_known_args()
-  return args.target if args.machine else host()
+  return args.target if args.target else host()
 
 def version():
   parser = create_parser()
