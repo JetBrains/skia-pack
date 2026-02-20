@@ -134,6 +134,12 @@ def main():
         'extra_cflags=["-DSK_SUPPORT_GPU=1", "-DSK_GL", "-DSK_DISABLE_LEGACY_SHADERCONTEXT", "-sSUPPORT_LONGJMP=wasm"]'
     ]
 
+  # Unhide path edit methods for compatible migration
+  args += [
+    'extra_cflags+=["-USK_HIDE_PATH_EDIT_METHODS"]',
+    'extra_cflags_cc+=["-USK_HIDE_PATH_EDIT_METHODS"]',
+  ]
+
   if 'linux' == host and 'arm64' == host_machine:
     tools_dir = 'tools'
     ninja = 'ninja-linux-arm64'
