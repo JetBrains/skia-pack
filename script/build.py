@@ -37,19 +37,23 @@ def main():
     'skia_use_system_harfbuzz=false',
     'skia_pdf_subset_harfbuzz=true',
     'skia_use_system_icu=false',
-    'skia_enable_skottie=true'
+    'skia_enable_skottie=true',
+
+    # Just to make following "+=" work unconditionally
+    'extra_cflags=[]',
+    'extra_cflags_cc=[]',
   ]
 
   if isMacos or isIos or isTvos:
     if isMacos:
         args += ['skia_use_fonthost_mac=true']
-    args += ['extra_cflags_cc=["-frtti"]']
+    args += ['extra_cflags_cc+=["-frtti"]']
     args += ['skia_use_metal=true']
     if isIos:
       args += ['target_os="ios"']
       if isIosSim:
         args += ['ios_use_simulator=true']
-        args += ['extra_cflags=["-mios-simulator-version-min=12.0"]']
+        args += ['extra_cflags+=["-mios-simulator-version-min=12.0"]']
       else:
         args += ['ios_min_target="12.0"']
     else:
@@ -58,33 +62,33 @@ def main():
         # Metal needs tvOS version 14 and SK_BUILD_FOR_TVOS to skip legacy iOS checks
         if isTvosSim:
           args += ['ios_use_simulator=true']
-          args += ['extra_cflags=["-mtvos-simulator-version-min=14", "-DSK_BUILD_FOR_TVOS"]']
+          args += ['extra_cflags+=["-mtvos-simulator-version-min=14", "-DSK_BUILD_FOR_TVOS"]']
         else:
-          args += ['extra_cflags=["-mtvos-version-min=14", "-DSK_BUILD_FOR_TVOS"]'] 
+          args += ['extra_cflags+=["-mtvos-version-min=14", "-DSK_BUILD_FOR_TVOS"]'] 
       else:
         if 'arm64' == machine:
-          args += ['extra_cflags=["-stdlib=libc++"]']
+          args += ['extra_cflags+=["-stdlib=libc++"]']
         else:
-          args += ['extra_cflags=["-stdlib=libc++", "-mmacosx-version-min=10.13"]']
+          args += ['extra_cflags+=["-stdlib=libc++", "-mmacosx-version-min=10.13"]']
   elif 'linux' == target:
     if 'arm64' == machine:
         args += [
             'skia_gl_standard="gles"',
             'skia_use_egl=true',
-            'extra_cflags_cc=["-fno-exceptions", "-fno-rtti", "-D_GLIBCXX_USE_CXX11_ABI=0", "-mno-outline-atomics"]',
+            'extra_cflags_cc+=["-fno-exceptions", "-fno-rtti", "-D_GLIBCXX_USE_CXX11_ABI=0", "-mno-outline-atomics"]',
             'cc="gcc-10"',
             'cxx="g++-10"',
         ]
     else:
         args += [
-            'extra_cflags_cc=["-fno-exceptions", "-fno-rtti","-D_GLIBCXX_USE_CXX11_ABI=0"]',
+            'extra_cflags_cc+=["-fno-exceptions", "-fno-rtti","-D_GLIBCXX_USE_CXX11_ABI=0"]',
             'cc="gcc-10"',
             'cxx="g++-10"',
         ]
   elif 'windows' == target:
     args += [
       'skia_use_direct3d=true',
-      'extra_cflags=["-DSK_FONT_HOST_USE_SYSTEM_SETTINGS"]',
+      'extra_cflags+=["-DSK_FONT_HOST_USE_SYSTEM_SETTINGS"]',
     ]
     if 'windows' == host:
       clang_path = shutil.which('clang-cl.exe')
@@ -131,7 +135,7 @@ def main():
         'skia_enable_gpu=true',
         'skia_enable_svg=true', # other targets have this set in skia.gni
         'skia_use_expat=true',   # other targets have this set in skia.gni
-        'extra_cflags=["-DSK_SUPPORT_GPU=1", "-DSK_GL", "-DSK_DISABLE_LEGACY_SHADERCONTEXT", "-sSUPPORT_LONGJMP=wasm"]'
+        'extra_cflags+=["-DSK_SUPPORT_GPU=1", "-DSK_GL", "-DSK_DISABLE_LEGACY_SHADERCONTEXT", "-sSUPPORT_LONGJMP=wasm"]'
     ]
 
   # Unhide path edit methods for compatible migration
