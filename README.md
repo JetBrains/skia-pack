@@ -1,6 +1,9 @@
 [![internal JetBrains project](https://jb.gg/badges/internal.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
 # Automated Skia builds
 
+> [!NOTE]
+> Archived. The active Skiko prebuilts workflow now lives in [JetBrains/skia](https://github.com/JetBrains/skia).
+
 This repo is dedicated to building Skia binaries for use in [Skiko](https://github.com/JetBrains/skiko).
 
 ## Prebuilt binaries
